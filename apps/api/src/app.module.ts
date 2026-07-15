@@ -14,6 +14,7 @@ import { AdvisoryModule } from './advisory/advisory.module';
 import { WeatherModule } from './weather/weather.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { CloudinaryModule } from './common/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { AuthModule } from './auth/auth.module';
       envFilePath: '../../.env',
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    UsersModule, FarmsModule, CropsModule, RecommendationsModule, MarketplaceModule, DealsModule, AdvisoryModule, WeatherModule, AdminModule, AuthModule
+    UsersModule, FarmsModule, CropsModule, RecommendationsModule, MarketplaceModule, DealsModule, AdvisoryModule, WeatherModule, AdminModule, AuthModule, CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -56,7 +56,7 @@ export class RecommendationsService {
   async getLatestForFarm(farmId: string): Promise<Recommendation[]> {
     return this.recommendationsRepository.find({
       where: { farmId },
-      relations: ['crop'],
+      relations: { crop: true },
       order: { generatedAt: 'DESC' },
     });
   }

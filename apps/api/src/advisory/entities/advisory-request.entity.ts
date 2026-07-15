@@ -48,4 +48,7 @@ export class AdvisoryRequest {
 
   @Column('simple-array', { nullable: true })
   previousOfficerIds: string[];
+
+  @Column({ type: 'text', nullable: true })
+  responseNotes: string;
 }

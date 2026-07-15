@@ -23,21 +23,21 @@ export class MarketplaceService {
   async findAllActive(): Promise<Listing[]> {
     return this.listingRepository.find({
       where: { status: ListingStatus.ACTIVE },
-      relations: ['farmer', 'crop'],
+      relations: { farmer: true, crop: true },
     });
   }
 
   async findAllByFarmer(farmerId: string): Promise<Listing[]> {
     return this.listingRepository.find({
       where: { farmerId },
-      relations: ['crop'],
+      relations: { crop: true },
     });
   }
 
   async findOne(id: string): Promise<Listing> {
     const listing = await this.listingRepository.findOne({
       where: { id },
-      relations: ['farmer', 'crop'],
+      relations: { farmer: true, crop: true },
     });
     if (!listing) {
       throw new NotFoundException(`Listing with ID ${id} not found`);
