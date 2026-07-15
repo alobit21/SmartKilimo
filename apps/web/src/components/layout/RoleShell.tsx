@@ -73,48 +73,50 @@ export const RoleShell: React.FC = () => {
       </aside>
 
       {/* Main Content Canvas */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8 max-w-7xl mx-auto w-full pb-24 md:pb-8">
-        {/* Top Navigation Header */}
-        <header className="flex justify-between items-center mb-8">
-          <div className="md:hidden">
-            <button className="p-2 text-on-surface">
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-          </div>
-          <div>
-            <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name?.split(' ')[0] || 'Joseph'}!</h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime} • Morogoro</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 rounded-full hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-            </button>
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img 
-                className="w-full h-full object-cover" 
-                alt="Profile" 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80"
-              />
+      <div className="flex-1 md:ml-64 min-h-screen">
+        <main className="p-4 md:p-8 max-w-[1400px] mx-auto w-full pb-24 md:pb-8">
+          {/* Top Navigation Header */}
+          <header className="flex justify-between items-center mb-8">
+            <div className="md:hidden">
+              <button className="p-2 text-on-surface">
+                <span className="material-symbols-outlined">menu</span>
+              </button>
             </div>
-          </div>
-        </header>
-
-        {/* Dashboard Views Rendered Here */}
-        <Outlet />
-
-        {/* Footer */}
-        <footer className="mt-12 pt-8 border-t border-outline-variant">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="font-body-md text-body-md text-on-surface-variant opacity-80">© 2024 KilimoBora Tanzania. Haki zote zimehifadhiwa.</p>
-            <div className="flex items-center gap-6">
-              <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Faragha</a>
-              <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Sheria</a>
-              <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Wasiliana</a>
+            <div>
+              <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name?.split(' ')[0] || 'Joseph'}!</h2>
+              <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime} • Morogoro</p>
             </div>
-          </div>
-        </footer>
-      </main>
+            <div className="flex items-center gap-4">
+              <button className="relative p-2 rounded-full hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined">notifications</span>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+              </button>
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+                <img 
+                  className="w-full h-full object-cover" 
+                  alt="A professional headshot of a Tanzanian farmer in his 40s" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ4uK5dn96xIHQSdES5uidKF24roVqspfKD0t7zvQSekxUkEjjtDTju7PRFuB9HUsoKD-AXRTfy7qFdMu8jaNrZ9vfe0XQqkTWAAcfWyGIxRzhJvZF8WnyQDQStQxxc88lvwbDFHCQegItwwH5epqdoYlRyb7oC6jyO9_p1McB21xgM_pBsfYXLWDc43PvGnxNes1GaI67LyhRU6eXp4C48I-YfYvHspHeuPYia3cDnvg4g9N8KNPg"
+                />
+              </div>
+            </div>
+          </header>
+
+          {/* Dashboard Views Rendered Here */}
+          <Outlet />
+
+          {/* Footer */}
+          <footer className="mt-12 pt-8 border-t border-outline-variant">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="font-body-md text-body-md text-on-surface-variant opacity-80">© 2024 KilimoBora Tanzania. Haki zote zimehifadhiwa.</p>
+              <div className="flex items-center gap-6">
+                <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Faragha</a>
+                <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Sheria</a>
+                <a className="font-label-sm text-label-sm text-on-surface-variant opacity-80 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Wasiliana</a>
+              </div>
+            </div>
+          </footer>
+        </main>
+      </div>
 
       {/* Mobile Navigation Bar (Fixed Bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant px-4 py-4 flex justify-around items-center z-50">

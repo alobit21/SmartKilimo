@@ -40,7 +40,7 @@ export const FarmerDashboard = () => {
         <div className="absolute -right-4 -bottom-4 opacity-10">
           <span className="material-symbols-outlined text-[160px]">eco</span>
         </div>
-        <div className="w-full md:w-1/3 h-40 rounded-lg overflow-hidden flex-shrink-0 z-10">
+        <div className="w-full md:w-[320px] md:h-[240px] h-48 rounded-lg overflow-hidden flex-shrink-0 z-10">
           <img 
             className="w-full h-full object-cover" 
             alt="Close up of a vibrant, healthy maize cob" 

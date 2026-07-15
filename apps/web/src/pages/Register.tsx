@@ -61,13 +61,16 @@ export const Register: React.FC = () => {
         <div className="bg-surface py-8 px-4 soft-lift hairline-border sm:rounded-2xl sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-error-container text-on-error-container p-3 rounded-lg font-label-sm text-center">
-                {error}
+              <div className="bg-error-container/20 border border-error/20 text-error p-4 rounded-xl flex items-start gap-3">
+                <span className="material-symbols-outlined shrink-0">error</span>
+                <p className="font-label-md text-sm mt-0.5">{error}</p>
               </div>
             )}
+            
             {success && (
-              <div className="bg-sprout-tint text-primary p-3 rounded-lg font-label-sm text-center">
-                {success}
+              <div className="bg-sprout-tint border border-primary/20 text-primary p-4 rounded-xl flex items-start gap-3">
+                <span className="material-symbols-outlined shrink-0">check_circle</span>
+                <p className="font-label-md text-sm mt-0.5">{success}</p>
               </div>
             )}
 
@@ -144,10 +147,17 @@ export const Register: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm font-label-lg text-on-primary bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-opacity disabled:opacity-50"
+                disabled={loading || !!success}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm font-label-lg text-on-primary bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-70"
               >
-                {loading ? 'Inasajili...' : 'Jisajili'}
+                {loading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                    Inasajili...
+                  </>
+                ) : (
+                  'Jisajili'
+                )}
               </button>
             </div>
           </form>

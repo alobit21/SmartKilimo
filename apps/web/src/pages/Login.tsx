@@ -7,6 +7,7 @@ export const Login: React.FC = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,19 +22,21 @@ export const Login: React.FC = () => {
 
     try {
       const response = await apiClient.post('/auth/login', { identifier, password });
-      const { user, token } = response.data;
+      const { user, accessToken } = response.data;
       
-      login(user, token);
+      login(user, accessToken);
+      setSuccess('Umeingia kikamilifu! Tunakupeleka kwenye ukurasa wako...');
       
-      // Navigate to respective dashboard or original intended page
-      if (from === '/') {
-        navigate(`/${user.role.toLowerCase()}`);
-      } else {
-        navigate(from);
-      }
+      // Delay navigation slightly so user sees the success message
+      setTimeout(() => {
+        if (from === '/') {
+          navigate(`/${user.role.toLowerCase()}`);
+        } else {
+          navigate(from);
+        }
+      }, 1500);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Kuna tatizo limejitokeza. Tafadhali jaribu tena.');
-    } finally {
       setLoading(false);
     }
   };
@@ -56,8 +59,16 @@ export const Login: React.FC = () => {
         <div className="bg-surface py-8 px-4 soft-lift hairline-border sm:rounded-2xl sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-error-container text-on-error-container p-3 rounded-lg font-label-sm text-center">
-                {error}
+              <div className="bg-error-container/20 border border-error/20 text-error p-4 rounded-xl flex items-start gap-3">
+                <span className="material-symbols-outlined shrink-0">error</span>
+                <p className="font-label-md text-sm mt-0.5">{error}</p>
+              </div>
+            )}
+            
+            {success && (
+              <div className="bg-sprout-tint border border-primary/20 text-primary p-4 rounded-xl flex items-start gap-3">
+                <span className="material-symbols-outlined shrink-0">check_circle</span>
+                <p className="font-label-md text-sm mt-0.5">{success}</p>
               </div>
             )}
             
@@ -120,10 +131,17 @@ export const Login: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm font-label-lg text-on-primary bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-opacity disabled:opacity-50"
+                disabled={loading || !!success}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm font-label-lg text-on-primary bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-70"
               >
-                {loading ? 'Inaingia...' : 'Ingia'}
+                {loading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                    Inaingia...
+                  </>
+                ) : (
+                  'Ingia'
+                )}
               </button>
             </div>
           </form>
