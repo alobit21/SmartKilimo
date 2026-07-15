@@ -8,7 +8,7 @@ export class Deal {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Listing)
+  @ManyToOne(() => Listing, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'listingId' })
   listing: Listing;
 

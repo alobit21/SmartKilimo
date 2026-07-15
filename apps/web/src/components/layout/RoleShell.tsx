@@ -72,10 +72,6 @@ export const RoleShell: React.FC = () => {
             Tuma Ripoti
           </button>
           <div className="space-y-1">
-            <a className="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-container-high rounded-xl transition-all text-label-lg" href="#">
-              <span className="material-symbols-outlined">settings</span>
-              <span>Mipangilio</span>
-            </a>
             <button onClick={handleLogout} className="w-full flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-error-container hover:text-error rounded-xl transition-all text-label-lg">
               <span className="material-symbols-outlined">logout</span>
               <span>Ondoka</span>
@@ -132,22 +128,22 @@ export const RoleShell: React.FC = () => {
 
       {/* Mobile Navigation Bar (Fixed Bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant px-4 py-4 flex justify-around items-center z-50">
-        <a className="flex flex-col items-center text-primary" href="#">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
+        <Link to={`/${user?.role?.toLowerCase() || 'farmer'}`} className={`flex flex-col items-center ${location.pathname === '/farmer' ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/farmer' ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
           <span className="text-xs font-label-sm mt-1">Home</span>
-        </a>
-        <a className="flex flex-col items-center text-on-surface-variant" href="#">
-          <span className="material-symbols-outlined">agriculture</span>
-          <span className="text-xs font-label-sm mt-1">Farms</span>
-        </a>
-        <a className="flex flex-col items-center text-on-surface-variant" href="#">
-          <span className="material-symbols-outlined">storefront</span>
-          <span className="text-xs font-label-sm mt-1">Market</span>
-        </a>
-        <a className="flex flex-col items-center text-on-surface-variant" href="#">
-          <span className="material-symbols-outlined">account_circle</span>
-          <span className="text-xs font-label-sm mt-1">Profile</span>
-        </a>
+        </Link>
+        <Link to="/farmer/crops" className={`flex flex-col items-center ${location.pathname.includes('/crops') ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
+          <span className="text-xs font-label-sm mt-1">Mazao</span>
+        </Link>
+        <Link to="/farmer/market" className={`flex flex-col items-center ${location.pathname.includes('/market') ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
+          <span className="text-xs font-label-sm mt-1">Soko</span>
+        </Link>
+        <Link to="/farmer/advisory" className={`flex flex-col items-center ${location.pathname.includes('/advisory') ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
+          <span className="text-xs font-label-sm mt-1">Wataalamu</span>
+        </Link>
       </nav>
 
       {/* Interactive FAB for mobile only */}

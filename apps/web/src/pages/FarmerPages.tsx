@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
-import { useMyListings, useCreateListing } from '../features/marketplace/useMarketplace';
+import { useMyListings, useCreateListing, useUpdateListing, useDeleteListing } from '../features/marketplace/useMarketplace';
 import { useFarms } from '../features/farms/useFarms';
 import { useCrops } from '../features/crops/useCrops';
 import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryRequest, useDeleteAdvisoryRequest } from '../features/advisory/useAdvisory';
@@ -330,8 +330,13 @@ export const FarmerMarket = () => {
   const { data: listings, isLoading } = useMyListings();
   const { data: crops } = useCrops();
   const createListingMutation = useCreateListing();
+  const updateListingMutation = useUpdateListing();
+  const deleteListingMutation = useDeleteListing();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingListingId, setEditingListingId] = useState<string | null>(null);
+  const [deletingListingId, setDeletingListingId] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     cropId: '',
     quantity: '',
@@ -340,20 +345,61 @@ export const FarmerMarket = () => {
     currency: 'TZS'
   });
 
+  const handleEditClick = (listing: any) => {
+    setEditingListingId(listing.id);
+    setFormData({
+      cropId: listing.cropId || listing.crop?.id || '',
+      quantity: listing.quantity.toString(),
+      unit: listing.unit,
+      pricePerUnit: listing.pricePerUnit.toString(),
+      currency: listing.currency,
+    });
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenNew = () => {
+    setEditingListingId(null);
+    setFormData({ cropId: '', quantity: '', unit: 'Kilo', pricePerUnit: '', currency: 'TZS' });
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.cropId || !formData.quantity || !formData.pricePerUnit) return;
     
-    await createListingMutation.mutateAsync({
-      cropId: formData.cropId,
-      quantity: Number(formData.quantity),
-      unit: formData.unit,
-      pricePerUnit: Number(formData.pricePerUnit),
-      currency: formData.currency,
-    });
+    if (editingListingId) {
+      // For updates, we just send JSON (no image update yet for listings in our backend setup)
+      await updateListingMutation.mutateAsync({
+        id: editingListingId,
+        data: {
+          cropId: formData.cropId,
+          quantity: Number(formData.quantity),
+          unit: formData.unit,
+          pricePerUnit: Number(formData.pricePerUnit),
+          currency: formData.currency,
+        }
+      });
+    } else {
+      const submissionData = new FormData();
+      submissionData.append('cropId', formData.cropId);
+      submissionData.append('quantity', formData.quantity);
+      submissionData.append('unit', formData.unit);
+      submissionData.append('pricePerUnit', formData.pricePerUnit);
+      submissionData.append('currency', formData.currency);
+      
+      if (selectedFile) {
+        submissionData.append('photo', selectedFile);
+      }
+      
+      await createListingMutation.mutateAsync(submissionData as any);
+    }
     
     setIsModalOpen(false);
+    setEditingListingId(null);
     setFormData({ cropId: '', quantity: '', unit: 'Kilo', pricePerUnit: '', currency: 'TZS' });
+    setSelectedFile(null);
   };
 
   return (
@@ -364,7 +410,7 @@ export const FarmerMarket = () => {
           <p className="text-body-lg font-body-lg text-on-surface-variant">Dhibiti bidhaa zako unazouza na ofa kutoka kwa wanunuzi.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenNew}
           className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
           <span className="material-symbols-outlined">add</span> Weka Bidhaa Sokoni
@@ -458,16 +504,37 @@ export const FarmerMarket = () => {
                   </select>
                 </div>
               </div>
+
+              {!editingListingId && (
+                <div>
+                  <label className="block text-label-md font-bold text-on-surface mb-2">Picha ya Bidhaa (Hiari)</label>
+                  <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
+                    <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
+                    <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha ya bidhaa yako</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {selectedFile && (
+                      <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
+                        {selectedFile.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <div className="flex gap-4 mt-8 pt-4 border-t border-outline-variant">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
+                <button type="button" onClick={() => { setIsModalOpen(false); setEditingListingId(null); }} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
                   Ghairi
                 </button>
-                <button type="submit" disabled={createListingMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
-                  {createListingMutation.isPending ? (
+                <button type="submit" disabled={createListingMutation.isPending || updateListingMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
+                  {createListingMutation.isPending || updateListingMutation.isPending ? (
                     <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin">sync</span> Inapakia...</span>
                   ) : (
-                    'Hifadhi Bidhaa'
+                    editingListingId ? 'Hifadhi Mabadiliko' : 'Hifadhi Bidhaa'
                   )}
                 </button>
               </div>
@@ -501,15 +568,49 @@ export const FarmerMarket = () => {
                       <div className="font-label-sm text-on-surface-variant">kwa {listing.unit}</div>
                     </div>
                   </div>
-                  <div className="flex gap-4 mt-4">
-                    <span className="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-xs font-bold">Ofa Mpya</span>
-                    <button className="text-primary font-label-sm hover:underline">Tazama Ofa</button>
+                  <div className="flex justify-between items-center mt-4 pt-3 border-t border-outline-variant/50">
+                    <div className="flex gap-4">
+                      <span className="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-xs font-bold">Ofa Mpya</span>
+                      <button className="text-primary font-label-sm hover:underline">Tazama Ofa</button>
+                    </div>
+                    {listing.status === 'ACTIVE' && (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleEditClick(listing)}
+                          className="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">edit</span> Hariri
+                        </button>
+                        <button 
+                          onClick={() => setDeletingListingId(listing.id)}
+                          className="px-3 py-1.5 text-xs font-bold text-error bg-error/10 rounded hover:bg-error/20 transition-colors flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span> Futa
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))
           )}
         </div>
+
+        <ConfirmDialog
+          isOpen={!!deletingListingId}
+          title="Futa Bidhaa"
+          message="Je, una uhakika unataka kufuta bidhaa hii kutoka sokoni? Wanunuzi hawataiona tena."
+          confirmText="Ndio, Futa"
+          cancelText="Ghairi"
+          isLoading={deleteListingMutation.isPending}
+          onConfirm={async () => {
+            if (deletingListingId) {
+              await deleteListingMutation.mutateAsync(deletingListingId);
+              setDeletingListingId(null);
+            }
+          }}
+          onCancel={() => setDeletingListingId(null)}
+        />
         
         <div>
           <h2 className="font-title-md text-title-md text-on-surface mb-4">Bei za Soko (Dodoma)</h2>

@@ -66,14 +66,14 @@ export const FarmerDashboard = () => {
       <div className="md:col-span-7 bg-surface rounded-xl hairline-border p-6 soft-lift">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-title-md text-title-md text-on-surface">Mashamba Yangu</h3>
-          <button className="text-primary font-label-lg text-label-lg flex items-center gap-1 hover:opacity-80">
+          <Link to="/farmer/crops" className="text-primary font-label-lg text-label-lg flex items-center gap-1 hover:opacity-80">
             <span className="material-symbols-outlined">add</span>
             Ongeza
-          </button>
+          </Link>
         </div>
         <div className="space-y-4">
           {/* Shamba 1 */}
-          <div className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
+          <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
             <div className="flex items-center gap-6">
               <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
                 <span className="material-symbols-outlined">agriculture</span>
@@ -90,10 +90,10 @@ export const FarmerDashboard = () => {
               </div>
               <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
             </div>
-          </div>
+          </Link>
           
           {/* Shamba 2 */}
-          <div className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
+          <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
             <div className="flex items-center gap-6">
               <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
                 <span className="material-symbols-outlined">agriculture</span>
@@ -110,7 +110,7 @@ export const FarmerDashboard = () => {
               </div>
               <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -137,13 +137,13 @@ export const FarmerDashboard = () => {
               <p className="font-label-sm text-label-sm text-outline mt-2">Siku 3 zilizopita</p>
             </div>
           </div>
-          <button className="w-full mt-6 border border-primary text-primary py-2 rounded-lg font-label-lg text-label-lg hover:bg-primary-container/10 transition-all min-h-[48px]">
+          <Link to="/farmer/advisory" className="w-full mt-6 border border-primary text-primary py-2 rounded-lg font-label-lg text-label-lg flex items-center justify-center hover:bg-primary-container/10 transition-all min-h-[48px]">
             Omba Ushauri Mpya
-          </button>
+          </Link>
         </div>
 
         {/* Marketplace Listing Count */}
-        <div className="bg-inverse-surface text-inverse-on-surface rounded-xl p-6 soft-lift flex items-center justify-between">
+        <Link to="/farmer/market" className="bg-inverse-surface text-inverse-on-surface rounded-xl p-6 soft-lift flex items-center justify-between hover:opacity-95 transition-opacity cursor-pointer">
           <div>
             <p className="font-label-lg text-label-lg opacity-80">Matangazo ya Soko</p>
             <h4 className="font-display-md text-display-md font-bold mt-1">12 Active</h4>
@@ -152,7 +152,7 @@ export const FarmerDashboard = () => {
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
             <span className="material-symbols-outlined text-[32px]">trending_up</span>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );
@@ -300,7 +300,11 @@ export const BuyerDashboard = () => {
             listings?.map(listing => (
               <div key={listing.id} className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
                 <div className="relative h-48 w-full overflow-hidden bg-surface-container-highest flex items-center justify-center">
-                  <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">shopping_bag</span>
+                  {listing.photoUrl ? (
+                    <img src={listing.photoUrl} alt={listing.crop?.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  ) : (
+                    <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">shopping_bag</span>
+                  )}
                 </div>
                 <div className="p-card_padding flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-base">

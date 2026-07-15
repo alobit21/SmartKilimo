@@ -1,10 +1,12 @@
 import { IsString, IsNumber, IsOptional, IsEnum, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ListingStatus } from '../entities/listing.entity';
 
 export class CreateListingDto {
   @IsString()
   cropId: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0.1)
   quantity: number;
@@ -12,6 +14,7 @@ export class CreateListingDto {
   @IsString()
   unit: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   pricePerUnit: number;
@@ -31,11 +34,13 @@ export class UpdateListingDto {
   status?: ListingStatus;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0.1)
   quantity?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   pricePerUnit?: number;

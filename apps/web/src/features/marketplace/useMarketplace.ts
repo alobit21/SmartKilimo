@@ -14,6 +14,7 @@ export interface Listing {
   pricePerUnit: number;
   currency: string;
   status: string;
+  photoUrl?: string;
   crop: Crop;
   farmer: {
     id: string;
@@ -53,8 +54,42 @@ export const useCreateListing = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (data: CreateListingData) => {
-      const response = await apiClient.post('/marketplace/listings', data);
+    mutationFn: async (formData: FormData) => {
+      const response = await apiClient.post('/marketplace/listings', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['active-listings'] });
+    }
+  });
+};
+
+export const useUpdateListing = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateListingData> }) => {
+      const response = await apiClient.put(`/marketplace/listings/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['active-listings'] });
+    }
+  });
+};
+
+export const useDeleteListing = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(`/marketplace/listings/${id}`);
       return response.data;
     },
     onSuccess: () => {

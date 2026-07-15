@@ -3,18 +3,33 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Listing, ListingStatus } from './entities/listing.entity';
 import { CreateListingDto, UpdateListingDto } from './dto/listing.dto';
+import { CloudinaryService } from '../common/cloudinary/cloudinary.service';
+import 'multer';
 
 @Injectable()
 export class MarketplaceService {
   constructor(
     @InjectRepository(Listing)
     private readonly listingRepository: Repository<Listing>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(farmerId: string, createListingDto: CreateListingDto): Promise<Listing> {
+  async create(farmerId: string, createListingDto: CreateListingDto, file?: any): Promise<Listing> {
+    let photoUrl: string | undefined = undefined;
+    
+    if (file) {
+      try {
+        const uploadResult = await this.cloudinaryService.uploadImage(file);
+        photoUrl = uploadResult.secure_url;
+      } catch (e) {
+        console.error('[Marketplace] Image upload failed:', e.message);
+      }
+    }
+
     const listing = this.listingRepository.create({
       ...createListingDto,
       farmerId,
+      photoUrl,
       status: ListingStatus.ACTIVE,
     });
     return this.listingRepository.save(listing);
@@ -53,5 +68,14 @@ export class MarketplaceService {
     
     Object.assign(listing, updateListingDto);
     return this.listingRepository.save(listing);
+  }
+
+  async remove(id: string, farmerId: string): Promise<void> {
+    const listing = await this.findOne(id);
+    if (listing.farmerId !== farmerId) {
+      throw new UnauthorizedException('You can only delete your own listings');
+    }
+    
+    await this.listingRepository.remove(listing);
   }
 }

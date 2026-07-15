@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import 'multer';
 import { MarketplaceService } from './marketplace.service';
@@ -46,5 +46,11 @@ export class MarketplaceController {
   @Roles(Role.FARMER)
   updateListing(@Request() req, @Param('id') id: string, @Body() updateListingDto: UpdateListingDto) {
     return this.marketplaceService.update(id, req.user.id, updateListingDto);
+  }
+
+  @Delete('listings/:id')
+  @Roles(Role.FARMER)
+  deleteListing(@Request() req, @Param('id') id: string) {
+    return this.marketplaceService.remove(id, req.user.id);
   }
 }
