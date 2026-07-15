@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards, UseInterceptors, UploadedFile, Request } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, UseInterceptors, UploadedFile, Request } from '@nestjs/common';
 import { AdvisoryService } from './advisory.service';
 import { CreateAdvisoryDto, RespondAdvisoryDto } from './dto/advisory.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -44,5 +44,24 @@ export class AdvisoryController {
     @Body() respondDto: RespondAdvisoryDto
   ) {
     return this.advisoryService.respondToRequest(id, req.user.id, respondDto);
+  }
+
+  @Patch(':id')
+  @Roles(Role.FARMER)
+  updateRequest(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateDto: Partial<CreateAdvisoryDto>
+  ) {
+    return this.advisoryService.update(id, req.user.id, updateDto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.FARMER)
+  deleteRequest(
+    @Request() req,
+    @Param('id') id: string
+  ) {
+    return this.advisoryService.remove(id, req.user.id);
   }
 }

@@ -158,9 +158,48 @@ export const FarmerDashboard = () => {
   );
 };
 
+import { useActiveListings } from '../features/marketplace/useMarketplace';
+import { useCreateDeal, useBuyerDeals } from '../features/deals/useDeals';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+
 export const BuyerDashboard = () => {
+  const { data: listings, isLoading: listingsLoading } = useActiveListings();
+  const { data: deals, isLoading: dealsLoading } = useBuyerDeals();
+  const createDealMutation = useCreateDeal();
+  
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [selectedListingId, setSelectedListingId] = React.useState<string | null>(null);
+
+  const initiateBuy = (listingId: string) => {
+    setSelectedListingId(listingId);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmBuy = async () => {
+    if (!selectedListingId) return;
+    try {
+      await createDealMutation.mutateAsync(selectedListingId);
+    } finally {
+      setIsConfirmOpen(false);
+      setSelectedListingId(null);
+    }
+  };
+
   return (
     <main className="max-w-7xl mx-auto px-gutter py-lg flex flex-col md:flex-row gap-lg">
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        title="Tuma Ofa ya Kununua"
+        message="Je, una uhakika unataka kutuma ofa ya kununua bidhaa hii kwa mkulima? Hatua hii haiwezi kutenguliwa."
+        confirmText="Ndio, Tuma Ofa"
+        cancelText="Ghairi"
+        isLoading={createDealMutation.isPending}
+        onConfirm={handleConfirmBuy}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setSelectedListingId(null);
+        }}
+      />
       {/* Filter Sidebar */}
       <aside className="w-full md:w-64 flex-shrink-0 space-y-lg">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-card_padding">
@@ -237,7 +276,7 @@ export const BuyerDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
           <div>
             <h1 className="font-display-md text-display-md font-bold text-on-surface">Viwango vya Soko</h1>
-            <p className="text-on-surface-variant font-body-md">Bidhaa 128 zilizopatikana nchini Tanzania</p>
+            <p className="text-on-surface-variant font-body-md">Bidhaa {listings?.length || 0} zilizopatikana nchini Tanzania</p>
           </div>
           <div className="flex items-center gap-sm">
             <span className="font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap">Panga kwa:</span>
@@ -250,155 +289,86 @@ export const BuyerDashboard = () => {
         </div>
 
         {/* Bento Grid of Listings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg">
-          {/* Listing Card 1: Maize */}
-          <div className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
-            <div className="relative h-48 w-full overflow-hidden">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Mahindi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1rJCPXJq5Cj8XA-uFTIW9iA2e97l8PYzkevYHMUAGKKpGUs2eGeeAc5YRc_H1VUvFMqnS2oLeX7cVhgMGWXsmZBqFhkgQAdMmu0YhCdSwjKId5FNZS4xVett72FO7XDnvjH5Nez1fyhywmLA-Ox37mAb9DlDYPO7Ej5PVA4-O8COSIJpOdYI2OwAMJEGBR6EZRjovvLzqallqIzxmrPHE963I0PEUOCi6EYEHfHGmAOD7X5ZT51qB"/>
-              <div className="absolute top-3 left-3 flex gap-2">
-                <span className="bg-primary text-on-primary px-3 py-1 rounded-full text-label-sm font-label-sm shadow-sm">Premium</span>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg mb-xl">
+          {listingsLoading ? (
+            <div className="col-span-full p-8 text-center text-on-surface-variant">Inapakia bidhaa...</div>
+          ) : listings?.length === 0 ? (
+            <div className="col-span-full p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">
+              Hakuna bidhaa sokoni kwa sasa.
             </div>
-            <div className="p-card_padding flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-base">
-                <h3 className="font-title-md text-title-md text-on-surface">Mahindi ya Manjano</h3>
-                <span className="text-primary font-bold text-lg">850 <span className="text-xs font-normal">TZS/kg</span></span>
-              </div>
-              <div className="space-y-sm mb-lg flex-1">
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  <span className="font-body-md">Mufindi, Iringa</span>
+          ) : (
+            listings?.map(listing => (
+              <div key={listing.id} className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
+                <div className="relative h-48 w-full overflow-hidden bg-surface-container-highest flex items-center justify-center">
+                  <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">shopping_bag</span>
                 </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">inventory_2</span>
-                  <span className="font-body-md">Kiasi: 2,500 kg</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">event</span>
-                  <span className="font-body-md">Imepakiwa: Leo</span>
-                </div>
-              </div>
-              <button className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75">View Detail</button>
-            </div>
-          </div>
-
-          {/* Listing Card 2: Rice */}
-          <div className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
-            <div className="relative h-48 w-full overflow-hidden">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Mpunga" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhviM77usSy_41aDBfpqLnSaGS0BGoXwtbD5FFcaVWxxOGbrq1xMCIKM4039EkYE93cgdCdykdOG9PVFG0xsWi3jjuWl76gpoS_Bhz7ExA5rUSwfH3-u3StZG1mDgboMrin0aNIyhWx1aOx9_DFHlgcuhMk_vhJjSYjaWfU8yekaGH64qTxdPMbz_io-90-x-Xerbs4Sl40_JA1_YxG-ceJ9Ct2C6NhpIpltF3-FV0RAepuo3CPaMJ"/>
-            </div>
-            <div className="p-card_padding flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-base">
-                <h3 className="font-title-md text-title-md text-on-surface">Mpunga wa Kyela</h3>
-                <span className="text-primary font-bold text-lg">1,200 <span className="text-xs font-normal">TZS/kg</span></span>
-              </div>
-              <div className="space-y-sm mb-lg flex-1">
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  <span className="font-body-md">Kyela, Mbeya</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">inventory_2</span>
-                  <span className="font-body-md">Kiasi: 5,000 kg</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">verified_user</span>
-                  <span className="font-body-md">Muuzaji Aliyethibitishwa</span>
-                </div>
-              </div>
-              <button className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75">View Detail</button>
-            </div>
-          </div>
-
-          {/* Listing Card 3: Beans */}
-          <div className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
-            <div className="relative h-48 w-full overflow-hidden">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Maharage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzoHPTGEOmto_POllTPkXKNQakj4jLMqJPpiW2E8QVQT78P82rMDLB9TBK3ePvtcARkLz1kce-YC4vMGqjFh7Q0Fez4cXMecLJ37IO7CKGuxGZ0Am7z6IhpHsCORaxcp0gBkCF1_-sI-UxtsEY7H01dEnPNHxS-lUqx_x5U_WA_eTPdLEoly-kKoKw39tfIaVQZXf80104EKpLFRxIpQlfzGNOIxvMzZ7y7lFGX8Zq2TqLLsvmYy-n"/>
-              <div className="absolute top-3 left-3 flex gap-2">
-                <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm shadow-sm">Bei Nafuu</span>
-              </div>
-            </div>
-            <div className="p-card_padding flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-base">
-                <h3 className="font-title-md text-title-md text-on-surface">Maharage Meupe</h3>
-                <span className="text-primary font-bold text-lg">2,100 <span className="text-xs font-normal">TZS/kg</span></span>
-              </div>
-              <div className="space-y-sm mb-lg flex-1">
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  <span className="font-body-md">Arusha Urban</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">inventory_2</span>
-                  <span className="font-body-md">Kiasi: 800 kg</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant text-tertiary">
-                  <span className="material-symbols-outlined text-sm">history</span>
-                  <span className="font-body-md">Ofa Inamalizika Leo</span>
-                </div>
-              </div>
-              <button className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75">View Detail</button>
-            </div>
-          </div>
-
-          {/* Listing Card 4: Specialized Case */}
-          <div className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group col-span-1 lg:col-span-2 md:flex-row">
-            <div className="relative h-64 md:h-auto md:w-1/2 overflow-hidden">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Alizeti" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkdJagav-xZ9I7vpOHvlLfCZh8F3PPnIEAui1KD4Xo1Q6wzTbiyAPoFUvMwlTUXqArJKQYLNJG-1xKoPoQSBrfAkdviFpgKET_wxDx66wJXqZzdplnBDjUleOpg4iiR85FAATZIWFoBt-pl7_1mqzVx6cCLKVEbPpIueAPxIsSPd3DA7JkfirMqEDuU41UCH-_W6-Nl0ivgY-LuhFyKRF3BX2Hzo704mchYz7gpLPfuJUBJskRpR7r"/>
-              <div className="absolute top-3 left-3">
-                <span className="bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-sm font-label-sm shadow-sm">Bulk Order</span>
-              </div>
-            </div>
-            <div className="p-card_padding flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-base">
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface">Mbegu za Alizeti (Sunflowers)</h3>
-                  <span className="text-primary font-bold text-2xl">950 <span className="text-xs font-normal">TZS/kg</span></span>
-                </div>
-                <p className="text-on-surface-variant mb-md font-body-md line-clamp-2">Mazao bora kabisa ya msimu huu kutoka Singida. Mbegu zimekauka vizuri na zimekaguliwa kwa ubora wa kiwango cha kwanza.</p>
-                <div className="grid grid-cols-2 gap-md mb-lg">
-                  <div className="flex items-center gap-xs text-on-surface-variant">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
-                    <span className="font-body-md">Manyoni, Singida</span>
+                <div className="p-card_padding flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-base">
+                    <h3 className="font-title-md text-title-md text-on-surface">{listing.crop?.name}</h3>
+                    <span className="text-primary font-bold text-lg">{listing.pricePerUnit?.toLocaleString()} <span className="text-xs font-normal">{listing.currency}/{listing.unit}</span></span>
                   </div>
-                  <div className="flex items-center gap-xs text-on-surface-variant">
-                    <span className="material-symbols-outlined text-sm">inventory_2</span>
-                    <span className="font-body-md">Kiasi: 15,000 kg</span>
+                  <div className="space-y-sm mb-lg flex-1">
+                    <div className="flex items-center gap-xs text-on-surface-variant">
+                      <span className="material-symbols-outlined text-sm">person</span>
+                      <span className="font-body-md">{listing.farmer?.name}</span>
+                    </div>
+                    <div className="flex items-center gap-xs text-on-surface-variant">
+                      <span className="material-symbols-outlined text-sm">inventory_2</span>
+                      <span className="font-body-md">Kiasi: {listing.quantity?.toLocaleString()} {listing.unit}</span>
+                    </div>
                   </div>
+                  <button 
+                    onClick={() => initiateBuy(listing.id)}
+                    disabled={createDealMutation.isPending}
+                    className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {createDealMutation.isPending ? 'Inatuma...' : <><span className="material-symbols-outlined">shopping_cart</span> Nunua / Weka Ofa</>}
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-md">
-                <button className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75">View Detail</button>
-                <button className="px-4 py-3 border border-outline-variant text-primary rounded-xl font-label-lg text-label-lg hover:bg-surface-container-high transition-colors">
-                  <span className="material-symbols-outlined">favorite</span>
-                </button>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
+        </div>
 
-          {/* Listing Card 5: Rice Zanzibar */}
-          <div className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
-            <div className="relative h-48 w-full overflow-hidden">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Mpunga Zanzibar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH_XXzXhzMaUfs6R6JesX0oYtheAdtX3x5AuQnLBlO-8EWXeM95wAi4QT97Yjky_VoA2sQGVSURhsH_TblfiquaqHVuAkpxXYmVtTWpfzfkroNifVP1KUfwjx2aLrTQe9Udw7jSAOEZDQZQddWBUt1ypzMnHDWCBf80XnYQLtD_eHgtiRD1GyAds1zL_hIm17DZpnYICcLoHFEK-IFT-GQ2LYPV9hHV5SNXDP1zJrGtVXbX2G-yoIn"/>
+        <h2 className="font-title-lg text-title-lg text-on-surface mb-4">Mikataba Yangu (My Deals)</h2>
+        <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden mb-xl">
+          {dealsLoading ? (
+            <div className="p-8 text-center text-on-surface-variant">Inapakia mikataba...</div>
+          ) : !deals || deals.length === 0 ? (
+            <div className="p-8 text-center text-on-surface-variant">Hujatuma ofa yoyote bado.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-surface-container-low border-b border-outline-variant text-label-sm text-on-surface-variant">
+                    <th className="p-4 font-semibold">Mkulima</th>
+                    <th className="p-4 font-semibold">Zao</th>
+                    <th className="p-4 font-semibold">Kiasi</th>
+                    <th className="p-4 font-semibold">Jumla (TZS)</th>
+                    <th className="p-4 font-semibold">Hali</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
+                  {deals.map(deal => {
+                    const totalPrice = (deal.listing?.quantity || 0) * (deal.listing?.pricePerUnit || 0);
+                    return (
+                      <tr key={deal.id} className="hover:bg-surface-container-low/50 transition-colors">
+                        <td className="p-4 font-medium">{deal.farmer?.fullName || 'Mkulima'}</td>
+                        <td className="p-4">{deal.listing?.crop?.name}</td>
+                        <td className="p-4">{deal.listing?.quantity} {deal.listing?.unit}</td>
+                        <td className="p-4">{totalPrice.toLocaleString()}</td>
+                        <td className="p-4">
+                          {deal.status === 'PENDING' && <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-medium">Inasubiri</span>}
+                          {deal.status === 'ACCEPTED' && <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Imekubaliwa</span>}
+                          {deal.status === 'REJECTED' && <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Imekataliwa</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-            <div className="p-card_padding flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-base">
-                <h3 className="font-title-md text-title-md text-on-surface">Mpunga wa Zanzibar</h3>
-                <span className="text-primary font-bold text-lg">1,450 <span className="text-xs font-normal">TZS/kg</span></span>
-              </div>
-              <div className="space-y-sm mb-lg flex-1">
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  <span className="font-body-md">Chake Chake, Pemba</span>
-                </div>
-                <div className="flex items-center gap-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-sm">inventory_2</span>
-                  <span className="font-body-md">Kiasi: 1,200 kg</span>
-                </div>
-              </div>
-              <button className="w-full py-3 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-secondary transition-colors active:scale-95 duration-75">View Detail</button>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Pagination */}
@@ -420,24 +390,215 @@ export const BuyerDashboard = () => {
   );
 };
 
+import { useState } from 'react';
+import { usePendingAdvisories, useRespondAdvisory } from '../features/advisory/useAdvisory';
+
 export const OfficerDashboard = () => {
+  const { data: requests, isLoading } = usePendingAdvisories();
+  const respondMutation = useRespondAdvisory();
+  
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [responseNotes, setResponseNotes] = useState('');
+
+  const handleRespond = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRequestId || !responseNotes) return;
+    
+    await respondMutation.mutateAsync({ id: selectedRequestId, responseNotes });
+    setSelectedRequestId(null);
+    setResponseNotes('');
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Officer Dashboard</h2>
-      <Card>
-        <p>Advisory queue and farm problem reports.</p>
-      </Card>
+    <div className="flex-1 animate-in fade-in duration-500">
+      <header className="mb-xl">
+        <h1 className="font-display-lg text-display-lg text-primary mb-xs">Maombi ya Wakulima (Advisory Queue)</h1>
+        <p className="text-body-lg font-body-lg text-on-surface-variant">Tazama na toa ushauri kwa wakulima kuhusu matatizo ya mazao yao.</p>
+      </header>
+
+      {isLoading ? (
+        <div className="p-8 text-center text-on-surface-variant">Inapakia maombi...</div>
+      ) : requests?.length === 0 ? (
+        <div className="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl bg-surface">
+          Hakuna maombi mapya yanayosubiri ushauri.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {requests?.map(req => (
+            <div key={req.id} className="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col">
+              {req.photoUrl && (
+                <div className="w-full h-48 bg-surface-container-highest cursor-pointer" onClick={() => window.open(req.photoUrl, '_blank')}>
+                  <img src={req.photoUrl} alt="Crop issue" className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
+                </div>
+              )}
+              
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-3">
+                  <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold">
+                    Inasubiri (Pending)
+                  </span>
+                  <span className="text-label-sm text-on-surface-variant">{new Date(req.createdAt).toLocaleDateString()}</span>
+                </div>
+                
+                <h3 className="font-title-lg text-primary mb-1">{req.farm?.name}</h3>
+                <p className="text-label-sm text-on-surface-variant mb-4 flex gap-2 items-center">
+                  <span className="material-symbols-outlined text-sm">person</span> {req.farmer?.fullName || 'Mkulima'}
+                  <span className="material-symbols-outlined text-sm ml-2">grass</span> {req.crop?.name}
+                </p>
+                
+                <div className="bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-lg mb-4 flex-1">
+                  <p className="text-body-md text-on-surface">{req.description}</p>
+                </div>
+                
+                {selectedRequestId === req.id ? (
+                  <form onSubmit={handleRespond} className="mt-auto animate-in slide-in-from-top-2">
+                    <label className="block text-label-sm font-bold mb-2 text-primary">Majibu / Ushauri wako:</label>
+                    <textarea 
+                      className="w-full p-3 border border-outline-variant rounded-xl bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none mb-3"
+                      rows={3}
+                      placeholder="Andika ushauri wa kitaalamu hapa..."
+                      value={responseNotes}
+                      onChange={(e) => setResponseNotes(e.target.value)}
+                      required
+                    />
+                    <div className="flex gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => { setSelectedRequestId(null); setResponseNotes(''); }}
+                        className="flex-1 py-2 text-on-surface border border-outline-variant rounded-lg hover:bg-surface-container transition-colors"
+                      >
+                        Ghairi
+                      </button>
+                      <button 
+                        type="submit" 
+                        disabled={respondMutation.isPending}
+                        className="flex-1 py-2 bg-primary text-on-primary rounded-lg font-bold disabled:opacity-50 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      >
+                        {respondMutation.isPending ? 'Inatuma...' : 'Tuma Majibu'}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button 
+                    onClick={() => setSelectedRequestId(req.id)}
+                    className="w-full mt-auto bg-primary-container text-on-primary-container py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                  >
+                    <span className="material-symbols-outlined">rate_review</span> Toa Ushauri
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
+import { useAdminStats, useAdminRecentUsers } from '../features/admin/useAdmin';
+
 export const AdminDashboard = () => {
+  const { data: stats, isLoading: statsLoading } = useAdminStats();
+  const { data: users, isLoading: usersLoading } = useAdminRecentUsers();
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-      <Card>
-        <p>System overview and user management.</p>
-      </Card>
+    <div className="flex-1 animate-in fade-in duration-500">
+      <header className="mb-xl">
+        <h1 className="font-display-lg text-display-lg text-primary mb-xs">Admin Dashboard</h1>
+        <p className="text-body-lg font-body-lg text-on-surface-variant">System overview, metrics, and user management.</p>
+      </header>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-xl">
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4">
+          <div className="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">group</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Total Users</p>
+            <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.totalUsers}</p>
+          </div>
+        </div>
+        
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4">
+          <div className="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">storefront</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Marketplace Listings</p>
+            <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.totalListings}</p>
+          </div>
+        </div>
+
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4">
+          <div className="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">handshake</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Total Deals</p>
+            <div className="flex items-end gap-2">
+              <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.totalDeals}</p>
+              <p className="text-xs text-amber-600 mb-1">({stats?.pendingDeals} pending)</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4">
+          <div className="w-12 h-12 bg-error-container text-on-error-container rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">forum</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Advisory Requests</p>
+            <div className="flex items-end gap-2">
+              <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.totalAdvisoryRequests}</p>
+              <p className="text-xs text-amber-600 mb-1">({stats?.pendingAdvisories} pending)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Users Table */}
+      <h2 className="text-title-lg font-bold mb-4">Recent Users</h2>
+      <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+        {usersLoading ? (
+          <div className="p-8 text-center text-on-surface-variant">Loading users...</div>
+        ) : !users || users.length === 0 ? (
+          <div className="p-8 text-center text-on-surface-variant">No users found.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-container-low border-b border-outline-variant text-label-sm text-on-surface-variant">
+                  <th className="p-4 font-semibold">Name</th>
+                  <th className="p-4 font-semibold">Email</th>
+                  <th className="p-4 font-semibold">Role</th>
+                  <th className="p-4 font-semibold">Joined At</th>
+                  <th className="p-4 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
+                {users.map(user => (
+                  <tr key={user.id} className="hover:bg-surface-container-low/50 transition-colors">
+                    <td className="p-4 font-medium">{user.name}</td>
+                    <td className="p-4 text-on-surface-variant">{user.email}</td>
+                    <td className="p-4">
+                      <span className="bg-surface-container-highest px-2 py-1 rounded text-xs font-bold uppercase">{user.role}</span>
+                    </td>
+                    <td className="p-4 text-on-surface-variant">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4">
+                      {user.isActive ? (
+                        <span className="text-green-600 font-bold text-xs flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">check_circle</span> Active</span>
+                      ) : (
+                        <span className="text-error font-bold text-xs flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">cancel</span> Inactive</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -40,3 +40,26 @@ export const useActiveListings = () => {
     },
   });
 };
+
+export interface CreateListingData {
+  cropId: string;
+  quantity: number;
+  unit: string;
+  pricePerUnit: number;
+  currency: string;
+}
+
+export const useCreateListing = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: CreateListingData) => {
+      const response = await apiClient.post('/marketplace/listings', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['active-listings'] });
+    }
+  });
+};

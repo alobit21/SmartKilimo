@@ -6,7 +6,8 @@ import { User } from './users/entities/user.entity';
 import { Crop } from './crops/entities/crop.entity';
 import { Farm } from './farms/entities/farm.entity';
 import { Listing, ListingStatus } from './marketplace/entities/listing.entity';
-import { Role } from '@kilimosmart/shared-types';
+import { AdvisoryRequest } from './advisory/entities/advisory-request.entity';
+import { Role, RequestStatus } from '@kilimosmart/shared-types';
 import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
@@ -43,6 +44,22 @@ async function bootstrap() {
     passwordHash,
     role: Role.BUYER,
     name: 'Bakhresa Group',
+  });
+
+  const officer = await userRepository.save({
+    email: 'officer@example.com',
+    phone: '+255700000003',
+    passwordHash,
+    role: Role.OFFICER,
+    name: 'Officer Juma',
+  });
+
+  const admin = await userRepository.save({
+    email: 'admin@example.com',
+    phone: '+255700000004',
+    passwordHash,
+    role: Role.ADMIN,
+    name: 'Admin System',
   });
 
   // 3. Seed Crops (FAO mock data)
@@ -130,6 +147,28 @@ async function bootstrap() {
       pricePerUnit: 1200,
       currency: 'TZS',
       status: ListingStatus.ACTIVE,
+      photoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAkdJagav-xZ9I7vpOHvlLfCZh8F3PPnIEAui1KD4Xo1Q6wzTbiyAPoFUvMwlTUXqArJKQYLNJG-1xKoPoQSBrfAkdviFpgKET_wxDx66wJXqZzdplnBDjUleOpg4iiR85FAATZIWFoBt-pl7_1mqzVx6cCLKVEbPpIueAPxIsSPd3DA7JkfirMqEDuU41UCH-_W6-Nl0ivgY-LuhFyKRF3BX2Hzo704mchYz7gpLPfuJUBJskRpR7r',
+    }
+  ]);
+
+  // 6. Seed Advisory Requests
+  console.log('Seeding advisory requests...');
+  const advisoryRepository = dataSource.getRepository(AdvisoryRequest);
+  await advisoryRepository.save([
+    {
+      farmerId: farmer.id,
+      farmId: farm1.id,
+      cropId: crops[0].id, // Mahindi
+      description: 'Majani ya mahindi yanageuka manjano na kuwa na madoa madogo madogo. Naomba ushauri.',
+      status: RequestStatus.PENDING,
+      photoUrl: 'https://images.unsplash.com/photo-1599579085609-8b835bc4578b?auto=format&fit=crop&q=80&w=200',
+    },
+    {
+      farmerId: farmer.id,
+      farmId: farm2.id,
+      cropId: crops[1].id, // Alizeti
+      description: 'Mashina yanaoza kutoka chini, na wadudu weupe wanaonekana chini ya majani. Nifanye nini?',
+      status: RequestStatus.PENDING,
       photoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAkdJagav-xZ9I7vpOHvlLfCZh8F3PPnIEAui1KD4Xo1Q6wzTbiyAPoFUvMwlTUXqArJKQYLNJG-1xKoPoQSBrfAkdviFpgKET_wxDx66wJXqZzdplnBDjUleOpg4iiR85FAATZIWFoBt-pl7_1mqzVx6cCLKVEbPpIueAPxIsSPd3DA7JkfirMqEDuU41UCH-_W6-Nl0ivgY-LuhFyKRF3BX2Hzo704mchYz7gpLPfuJUBJskRpR7r',
     }
   ]);

@@ -65,4 +65,23 @@ export class AdvisoryService {
     
     return this.advisoryRepository.save(request);
   }
+
+  async update(id: string, farmerId: string, updateDto: Partial<CreateAdvisoryDto>): Promise<AdvisoryRequest> {
+    const request = await this.advisoryRepository.findOne({ where: { id, farmerId } });
+    if (!request) {
+      throw new NotFoundException(`Advisory request with ID ${id} not found`);
+    }
+
+    Object.assign(request, updateDto);
+    return this.advisoryRepository.save(request);
+  }
+
+  async remove(id: string, farmerId: string): Promise<void> {
+    const request = await this.advisoryRepository.findOne({ where: { id, farmerId } });
+    if (!request) {
+      throw new NotFoundException(`Advisory request with ID ${id} not found`);
+    }
+
+    await this.advisoryRepository.remove(request);
+  }
 }

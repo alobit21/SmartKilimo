@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
-import { useMyListings } from '../features/marketplace/useMarketplace';
+import { useMyListings, useCreateListing } from '../features/marketplace/useMarketplace';
 import { useFarms } from '../features/farms/useFarms';
 import { useCrops } from '../features/crops/useCrops';
-import { useMyAdvisoryRequests, useCreateAdvisoryRequest } from '../features/advisory/useAdvisory';
+import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryRequest, useDeleteAdvisoryRequest } from '../features/advisory/useAdvisory';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useFarmerDeals, useRespondDeal } from '../features/deals/useDeals';
 
 export const FarmerCrops = () => {
   const { data: farms, isLoading } = useFarms();
@@ -80,32 +82,63 @@ export const FarmerAdvisory = () => {
   const { data: requests, isLoading } = useMyAdvisoryRequests();
   const { data: farms } = useFarms();
   const { data: crops } = useCrops();
-  const createMutation = useCreateAdvisoryRequest();
+  const updateMutation = useUpdateAdvisoryRequest();
+  const deleteMutation = useDeleteAdvisoryRequest();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
+  const [deletingRequestId, setDeletingRequestId] = useState<string | null>(null);
+  
   const [description, setDescription] = useState('');
   const [selectedFarm, setSelectedFarm] = useState('');
   const [selectedCrop, setSelectedCrop] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const handleEditClick = (req: any) => {
+    setEditingRequestId(req.id);
+    setSelectedFarm(req.farmId);
+    setSelectedCrop(req.cropId);
+    setDescription(req.description);
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenNew = () => {
+    setEditingRequestId(null);
+    setDescription('');
+    setSelectedFarm('');
+    setSelectedCrop('');
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !selectedFarm || !selectedCrop) return;
 
-    const formData = new FormData();
-    formData.append('farmId', selectedFarm);
-    formData.append('cropId', selectedCrop);
-    formData.append('title', 'Msaada wa Haraka');
-    formData.append('description', description);
-    
-    if (selectedFile) {
-      formData.append('photo', selectedFile);
+    if (editingRequestId) {
+      await updateMutation.mutateAsync({
+        id: editingRequestId,
+        data: { description, farmId: selectedFarm, cropId: selectedCrop }
+      });
+    } else {
+      const formData = new FormData();
+      formData.append('farmId', selectedFarm);
+      formData.append('cropId', selectedCrop);
+      formData.append('title', 'Msaada wa Haraka');
+      formData.append('description', description);
+      
+      if (selectedFile) {
+        formData.append('photo', selectedFile);
+      }
+      await createMutation.mutateAsync(formData);
     }
-
-    await createMutation.mutateAsync(formData);
+    
     setIsModalOpen(false);
+    setEditingRequestId(null);
     setDescription('');
     setSelectedCrop('');
+    setSelectedFarm('');
     setSelectedFile(null);
   };
 
@@ -117,7 +150,7 @@ export const FarmerAdvisory = () => {
           <p className="text-body-lg font-body-lg text-on-surface-variant">Uliza maswali na pata ushauri kutoka kwa maafisa ugani.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenNew}
           className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
           <span className="material-symbols-outlined">add_a_photo</span> Omba Ushauri Mpya
@@ -177,34 +210,36 @@ export const FarmerAdvisory = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-label-md font-bold mb-2 text-on-surface">Picha ya Zao (Hiari)</label>
-                <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
-                  <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
-                  <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha</span>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  {selectedFile && (
-                    <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
-                      {selectedFile.name}
-                    </span>
-                  )}
+              {!editingRequestId && (
+                <div>
+                  <label className="block text-label-md font-bold mb-2 text-on-surface">Picha ya Zao (Hiari)</label>
+                  <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
+                    <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
+                    <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {selectedFile && (
+                      <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
+                        {selectedFile.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-4 mt-8 pt-4 border-t border-outline-variant">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
+                <button type="button" onClick={() => { setIsModalOpen(false); setEditingRequestId(null); }} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
                   Ghairi
                 </button>
-                <button type="submit" disabled={createMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
-                  {createMutation.isPending ? (
+                <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
+                  {createMutation.isPending || updateMutation.isPending ? (
                     <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin">sync</span> Inatuma...</span>
                   ) : (
-                    'Tuma Ombi'
+                    editingRequestId ? 'Hifadhi Mabadiliko' : 'Tuma Ombi'
                   )}
                 </button>
               </div>
@@ -249,31 +284,199 @@ export const FarmerAdvisory = () => {
                     <p className="text-body-sm text-on-surface">{req.responseNotes}</p>
                   </div>
                 )}
+                
+                {req.status === 'PENDING' && (
+                  <div className="mt-4 flex gap-2 pt-3 border-t border-outline-variant/50">
+                    <button 
+                      onClick={() => handleEditClick(req)}
+                      className="flex-1 py-2 text-sm font-bold text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit</span> Hariri
+                    </button>
+                    <button 
+                      onClick={() => setDeletingRequestId(req.id)}
+                      className="flex-1 py-2 text-sm font-bold text-error bg-error/10 rounded-lg hover:bg-error/20 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span> Futa
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!deletingRequestId}
+        title="Futa Ombi la Ushauri"
+        message="Je, una uhakika unataka kufuta ombi hili la ushauri? Hatua hii haiwezi kutenguliwa."
+        confirmText="Ndio, Futa"
+        cancelText="Ghairi"
+        isLoading={deleteMutation.isPending}
+        onConfirm={async () => {
+          if (deletingRequestId) {
+            await deleteMutation.mutateAsync(deletingRequestId);
+            setDeletingRequestId(null);
+          }
+        }}
+        onCancel={() => setDeletingRequestId(null)}
+      />
     </div>
   );
 };
 
 export const FarmerMarket = () => {
   const { data: listings, isLoading } = useMyListings();
+  const { data: crops } = useCrops();
+  const createListingMutation = useCreateListing();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    cropId: '',
+    quantity: '',
+    unit: 'Kilo',
+    pricePerUnit: '',
+    currency: 'TZS'
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.cropId || !formData.quantity || !formData.pricePerUnit) return;
+    
+    await createListingMutation.mutateAsync({
+      cropId: formData.cropId,
+      quantity: Number(formData.quantity),
+      unit: formData.unit,
+      pricePerUnit: Number(formData.pricePerUnit),
+      currency: formData.currency,
+    });
+    
+    setIsModalOpen(false);
+    setFormData({ cropId: '', quantity: '', unit: 'Kilo', pricePerUnit: '', currency: 'TZS' });
+  };
 
   return (
-    <div className="flex-1 animate-in fade-in duration-500">
+    <div className="flex-1 animate-in fade-in duration-500 relative">
       <header className="mb-xl flex justify-between items-end">
         <div>
           <h1 className="font-display-lg text-display-lg text-primary mb-xs">Soko Langu</h1>
           <p className="text-body-lg font-body-lg text-on-surface-variant">Dhibiti bidhaa zako unazouza na ofa kutoka kwa wanunuzi.</p>
         </div>
-        <button className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
+        >
           <span className="material-symbols-outlined">add</span> Weka Bidhaa Sokoni
         </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+      {/* Create Listing Modal */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" 
+          style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        >
+          <div className="bg-surface rounded-3xl p-6 md:p-8 w-[95vw] md:w-[600px] max-w-full shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 className="text-title-lg font-bold mb-6 text-on-surface flex items-center justify-between">
+              <span className="flex items-center gap-2 text-primary">
+                <span className="material-symbols-outlined">storefront</span>
+                Weka Bidhaa Sokoni
+              </span>
+              <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </h2>
+            
+            <form id="listing-form" onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-label-md font-bold text-on-surface mb-2">Zao (Crop)</label>
+                <select 
+                  required
+                  value={formData.cropId}
+                  onChange={(e) => setFormData({...formData, cropId: e.target.value})}
+                  className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                >
+                  <option value="" disabled>-- Chagua zao --</option>
+                  {crops?.map(crop => (
+                    <option key={crop.id} value={crop.id}>{crop.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-md font-bold text-on-surface mb-2">Kiasi (Quantity)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="1"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                    placeholder="Mf. 100"
+                    className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-md font-bold text-on-surface mb-2">Kipimo (Unit)</label>
+                  <select 
+                    required
+                    value={formData.unit}
+                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                    className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  >
+                    <option value="Kilo">Kilo (KG)</option>
+                    <option value="Tani">Tani (Ton)</option>
+                    <option value="Gunia">Gunia (Sack)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-md font-bold text-on-surface mb-2">Bei kwa Kipimo (Price)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="1"
+                    value={formData.pricePerUnit}
+                    onChange={(e) => setFormData({...formData, pricePerUnit: e.target.value})}
+                    placeholder="Mf. 1500"
+                    className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-md font-bold text-on-surface mb-2">Sarafu (Currency)</label>
+                  <select 
+                    required
+                    value={formData.currency}
+                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                    className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-highest cursor-not-allowed outline-none text-on-surface-variant font-medium"
+                    disabled
+                  >
+                    <option value="TZS">TZS</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 mt-8 pt-4 border-t border-outline-variant">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
+                  Ghairi
+                </button>
+                <button type="submit" disabled={createListingMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
+                  {createListingMutation.isPending ? (
+                    <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin">sync</span> Inapakia...</span>
+                  ) : (
+                    'Hifadhi Bidhaa'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg mt-8">
         <div className="lg:col-span-2 space-y-4">
           <h2 className="font-title-md text-title-md text-on-surface mb-4">Bidhaa Zilizopo Sokoni</h2>
           
@@ -331,6 +534,13 @@ export const FarmerMarket = () => {
 };
 
 export const FarmerContracts = () => {
+  const { data: deals, isLoading } = useFarmerDeals();
+  const respondMutation = useRespondDeal();
+
+  const handleRespond = async (dealId: string, status: 'ACCEPTED' | 'REJECTED') => {
+    await respondMutation.mutateAsync({ id: dealId, status });
+  };
+
   return (
     <div className="flex-1 animate-in fade-in duration-500">
       <header className="mb-xl">
@@ -339,49 +549,69 @@ export const FarmerContracts = () => {
       </header>
 
       <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface-container-low border-b border-outline-variant text-label-sm text-on-surface-variant">
-                <th className="p-4 font-semibold">Mnunuzi</th>
-                <th className="p-4 font-semibold">Zao</th>
-                <th className="p-4 font-semibold">Kiasi</th>
-                <th className="p-4 font-semibold">Bei Jumla</th>
-                <th className="p-4 font-semibold">Tarehe ya Makabidhiano</th>
-                <th className="p-4 font-semibold">Hali</th>
-                <th className="p-4 font-semibold"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
-              <tr className="hover:bg-surface-container-low/50 transition-colors">
-                <td className="p-4 font-medium">Bakhresa Group</td>
-                <td className="p-4">Mahindi</td>
-                <td className="p-4">Tani 5</td>
-                <td className="p-4">TZS 4,500,000</td>
-                <td className="p-4">20 Sept 2026</td>
-                <td className="p-4">
-                  <span className="bg-primary-container text-on-primary-container px-2 py-1 rounded text-xs font-medium">Imethibitishwa</span>
-                </td>
-                <td className="p-4 text-right">
-                  <button className="text-primary hover:underline font-label-sm">Tazama</button>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container-low/50 transition-colors">
-                <td className="p-4 font-medium">Dodoma Millers</td>
-                <td className="p-4">Alizeti</td>
-                <td className="p-4">Tani 1.5</td>
-                <td className="p-4">TZS 1,800,000</td>
-                <td className="p-4">05 Okt 2026</td>
-                <td className="p-4">
-                  <span className="bg-surface-container-highest text-on-surface-variant px-2 py-1 rounded text-xs font-medium">Inasubiri Sahihi</span>
-                </td>
-                <td className="p-4 text-right">
-                  <button className="text-primary hover:underline font-label-sm">Saini</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {isLoading ? (
+          <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
+        ) : !deals || deals.length === 0 ? (
+          <div className="p-8 text-center text-on-surface-variant">Huna mikataba yoyote bado.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-container-low border-b border-outline-variant text-label-sm text-on-surface-variant">
+                  <th className="p-4 font-semibold">Mnunuzi</th>
+                  <th className="p-4 font-semibold">Zao</th>
+                  <th className="p-4 font-semibold">Kiasi</th>
+                  <th className="p-4 font-semibold">Bei Jumla</th>
+                  <th className="p-4 font-semibold">Tarehe ya Ombi</th>
+                  <th className="p-4 font-semibold">Hali</th>
+                  <th className="p-4 font-semibold">Vitendo</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
+                {deals.map(deal => {
+                  const totalPrice = (deal.listing?.quantity || 0) * (deal.listing?.pricePerUnit || 0);
+                  
+                  return (
+                    <tr key={deal.id} className="hover:bg-surface-container-low/50 transition-colors">
+                      <td className="p-4 font-medium">{deal.buyer?.fullName || 'Mnunuzi'}</td>
+                      <td className="p-4">{deal.listing?.crop?.name}</td>
+                      <td className="p-4">{deal.listing?.quantity} {deal.listing?.unit}</td>
+                      <td className="p-4">{deal.listing?.currency} {totalPrice.toLocaleString()}</td>
+                      <td className="p-4">{new Date(deal.createdAt).toLocaleDateString()}</td>
+                      <td className="p-4">
+                        {deal.status === 'PENDING' && <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-medium">Inasubiri</span>}
+                        {deal.status === 'ACCEPTED' && <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Imekubaliwa</span>}
+                        {deal.status === 'REJECTED' && <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Imekataliwa</span>}
+                      </td>
+                      <td className="p-4 text-right flex gap-2 justify-end">
+                        {deal.status === 'PENDING' ? (
+                          <>
+                            <button 
+                              onClick={() => handleRespond(deal.id, 'ACCEPTED')}
+                              disabled={respondMutation.isPending}
+                              className="text-primary hover:bg-primary-container px-3 py-1 rounded-md font-label-sm transition-colors"
+                            >
+                              Kubali
+                            </button>
+                            <button 
+                              onClick={() => handleRespond(deal.id, 'REJECTED')}
+                              disabled={respondMutation.isPending}
+                              className="text-error hover:bg-error-container px-3 py-1 rounded-md font-label-sm transition-colors"
+                            >
+                              Kataa
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-on-surface-variant font-label-sm text-xs">Imekamilika</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

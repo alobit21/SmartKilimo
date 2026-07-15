@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Param, Put, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import 'multer';
 import { MarketplaceService } from './marketplace.service';
 import { CreateListingDto, UpdateListingDto } from './dto/listing.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -13,8 +15,13 @@ export class MarketplaceController {
 
   @Post('listings')
   @Roles(Role.FARMER)
-  createListing(@Request() req, @Body() createListingDto: CreateListingDto) {
-    return this.marketplaceService.create(req.user.id, createListingDto);
+  @UseInterceptors(FileInterceptor('photo'))
+  createListing(
+    @Request() req, 
+    @Body() createListingDto: CreateListingDto,
+    @UploadedFile() file?: any
+  ) {
+    return this.marketplaceService.create(req.user.id, createListingDto, file);
   }
 
   @Get('listings')
