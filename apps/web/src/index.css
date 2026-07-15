@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --font-family-inter: "Inter", sans-serif;
+  
+  --color-primary: #005230;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed: #a7f3c3;
+  --color-primary-container: #1e6b45;
+  --color-on-primary-container: #9de9b9;
+  
+  --color-secondary: #006c44;
+  --color-secondary-container: #9cf5c2;
+  --color-on-secondary-container: #0f734a;
+  
+  --color-tertiary-fixed: #ffdcbe;
+  --color-on-tertiary-fixed-variant: #693c00;
+  
+  --color-surface: #fcf9f8;
+  --color-on-surface: #1c1b1b;
+  --color-surface-variant: #e5e2e1;
+  --color-on-surface-variant: #3f4942;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container: #f0eded;
+  --color-surface-container-highest: #e5e2e1;
+  --color-inverse-surface: #313030;
+  --color-inverse-on-surface: #f3f0ef;
+  
+  --color-outline: #707a71;
+  --color-outline-variant: #bfc9bf;
+
+  /* Custom Typography settings for Tailwind v4 */
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.04em;
+  --text-label-sm--font-weight: 500;
+  
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+  
+  --text-label-lg: 14px;
+  --text-label-lg--line-height: 20px;
+  --text-label-lg--letter-spacing: 0.01em;
+  --text-label-lg--font-weight: 600;
+  
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+  
+  --text-title-md: 18px;
+  --text-title-md--line-height: 24px;
+  --text-title-md--font-weight: 600;
+  
+  --text-display-md: 24px;
+  --text-display-md--line-height: 32px;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-display-md--font-weight: 500;
+  
+  --text-display-lg: 32px;
+  --text-display-lg--line-height: 40px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 500;
+
+  --font-label-sm: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-lg: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-title-md: "Inter", sans-serif;
+  --font-display-md: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  
+  --shadow-soft-lift: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  --radius-button: 4px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+}
+
+body { font-family: 'Inter', sans-serif; background-color: var(--color-surface); }
