@@ -21,11 +21,10 @@ export const CropRecommendationsWidget = () => {
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-slate-800 dark:text-slate-200">Sorghum (Macci)</h4>
-                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold dark:bg-green-900/50 dark:text-green-400">98% Match</span>
+                <h4 className="font-semibold text-lg text-slate-900 dark:text-white">Maize - High Demand</h4>
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
-                Ideal for upcoming dry season. Expected yield is high based on your soil pH.
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-[384px]">
+                Current market trends show a 15% price increase in your region for maize.
               </p>
             </div>
             <div className="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
@@ -39,11 +38,10 @@ export const CropRecommendationsWidget = () => {
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-amber-900 dark:text-amber-500">Apply Fertilizer</h4>
-                <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 text-xs font-bold dark:bg-amber-800 dark:text-amber-200">Due Today</span>
+                <h4 className="font-semibold text-lg text-slate-900 dark:text-white">Beans - Alert</h4>
               </div>
-              <p className="text-sm text-amber-700/80 dark:text-amber-600/80 max-w-sm">
-                Farm Block A (Maize) requires NPK top-dressing for optimal growth phase.
+              <p className="text-sm text-amber-700/80 dark:text-amber-600/80 max-w-[384px]">
+                Expected rainfall next week may affect bean harvesting. Consider early harvesting.
               </p>
             </div>
             <div className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-lg text-amber-600">

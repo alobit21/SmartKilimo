@@ -52,7 +52,7 @@ export const LandingPage: React.FC = () => {
               <h1 className="text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] font-medium tracking-tight text-primary">
                 {lang === 'SW' ? 'Jua nini cha kupanda, wapi, na nani atanunua' : 'Know what to plant, where, and who will buy'}
               </h1>
-              <p className="font-body-lg text-[18px] leading-[28px] text-on-surface-variant max-w-xl">
+              <p className="font-body-lg text-[18px] leading-[28px] text-on-surface-variant max-w-[576px]">
                 {lang === 'SW' 
                   ? 'KilimoBora huleta maarifa ya kisasa na masoko ya uhakika moja kwa moja mikononi mwa wakulima wa Kitanzania. Badili jembe lako kuwa biashara ya uhakika.' 
                   : 'KilimoBora brings modern insights and reliable markets straight to the hands of Tanzanian farmers. Turn your hoe into a guaranteed business.'}
@@ -228,7 +228,7 @@ export const LandingPage: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center px-4 py-8 w-full max-w-7xl mx-auto gap-6">
           <div className="flex flex-col gap-2 items-center md:items-start">
             <div className="font-title-md text-title-md text-primary-fixed">KilimoBora Tanzania</div>
-            <p className="font-body-md text-body-md text-on-surface-variant opacity-80 max-w-xs text-center md:text-left">
+            <p className="font-body-md text-body-md text-on-surface-variant opacity-80 max-w-[320px] text-center md:text-left">
               Tukikuza tija, tunakuza Taifa. Programu rasmi ya usimamizi wa kilimo kidijitali.
             </p>
           </div>

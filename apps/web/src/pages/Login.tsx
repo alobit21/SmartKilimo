@@ -43,7 +43,7 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-body-md">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-[448px]">
         <Link to="/" className="flex justify-center font-display-md text-display-md font-bold text-primary mb-6">
           KilimoBora
         </Link>
@@ -55,7 +55,7 @@ export const Login: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[448px]">
         <div className="bg-surface py-8 px-4 soft-lift hairline-border sm:rounded-2xl sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (

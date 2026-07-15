@@ -35,6 +35,25 @@
   
   --color-outline: #707a71;
   --color-outline-variant: #bfc9bf;
+  
+  --color-tertiary: #693c00;
+  --color-on-tertiary: #ffffff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-background: #fcf9f8;
+  --color-on-background: #1c1b1b;
+  
+  /* Custom Spacing from Design */
+  --spacing-xxl: 48px;
+  --spacing-base: 8px;
+  --spacing-gutter: 16px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-xl: 32px;
+  --spacing-container_padding: 16px;
+  --spacing-card_padding: 24px;
 
   /* Custom Typography settings for Tailwind v4 */
   --text-label-sm: 12px;
@@ -90,6 +109,7 @@
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: #f0eded; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #707a71; border-radius: 10px; }
+  .listing-card:hover { transform: translateY(-2px); transition: transform 0.2s ease-in-out; }
 }
 
 body { font-family: 'Inter', sans-serif; background-color: var(--color-surface); }

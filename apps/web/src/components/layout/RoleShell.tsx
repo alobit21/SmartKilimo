@@ -37,22 +37,34 @@ export const RoleShell: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('dashboard') || location.pathname === '/farmer' ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
             <span className="font-title-md text-title-md">Dashboard</span>
           </Link>
-          <a className="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high rounded-xl transition-all scale-95 active:scale-90" href="#">
-            <span className="material-symbols-outlined">agriculture</span>
+          <Link 
+            to="/farmer/crops" 
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
             <span className="font-title-md text-title-md">Mazao</span>
-          </a>
-          <a className="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high rounded-xl transition-all scale-95 active:scale-90" href="#">
-            <span className="material-symbols-outlined">storefront</span>
+          </Link>
+          <Link 
+            to="/farmer/market" 
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
             <span className="font-title-md text-title-md">Soko</span>
-          </a>
-          <a className="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high rounded-xl transition-all scale-95 active:scale-90" href="#">
-            <span className="material-symbols-outlined">group</span>
+          </Link>
+          <Link 
+            to="/farmer/recommendations" 
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('recommendations') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('recommendations') ? "'FILL' 1" : "'FILL' 0" }}>group</span>
             <span className="font-title-md text-title-md">Wataalamu</span>
-          </a>
-          <a className="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high rounded-xl transition-all scale-95 active:scale-90" href="#">
-            <span className="material-symbols-outlined">description</span>
+          </Link>
+          <Link 
+            to="/farmer/contracts" 
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('contracts') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('contracts') ? "'FILL' 1" : "'FILL' 0" }}>description</span>
             <span className="font-title-md text-title-md">Mkataba</span>
-          </a>
+          </Link>
         </nav>
 
         <div className="mt-auto pt-6 border-t border-outline-variant">
