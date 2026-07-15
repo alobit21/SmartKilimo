@@ -67,3 +67,17 @@ export const useRespondDeal = () => {
     },
   });
 };
+
+export const useCancelDeal = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(`/deals/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-deals'] });
+    },
+  });
+};

@@ -65,4 +65,15 @@ export class DealsService {
     
     return this.dealRepository.save(deal);
   }
+
+  async cancelDeal(dealId: string, buyerId: string): Promise<void> {
+    const deal = await this.dealRepository.findOne({ where: { id: dealId, buyerId } });
+    if (!deal) {
+      throw new NotFoundException('Deal not found');
+    }
+    if (deal.status !== RequestStatus.PENDING) {
+      throw new BadRequestException('Can only cancel pending deals');
+    }
+    await this.dealRepository.remove(deal);
+  }
 }

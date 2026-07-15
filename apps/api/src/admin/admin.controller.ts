@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -19,5 +19,10 @@ export class AdminController {
   @Get('users')
   getRecentUsers() {
     return this.adminService.getRecentUsers();
+  }
+
+  @Patch('users/:id/status')
+  updateUserStatus(@Param('id') id: string, @Body('isActive') isActive: boolean) {
+    return this.adminService.updateUserStatus(id, isActive);
   }
 }

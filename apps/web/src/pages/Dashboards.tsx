@@ -159,20 +159,39 @@ export const FarmerDashboard = () => {
 };
 
 import { useActiveListings } from '../features/marketplace/useMarketplace';
-import { useCreateDeal, useBuyerDeals } from '../features/deals/useDeals';
+import { useCreateDeal, useBuyerDeals, useCancelDeal } from '../features/deals/useDeals';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export const BuyerDashboard = () => {
   const { data: listings, isLoading: listingsLoading } = useActiveListings();
   const { data: deals, isLoading: dealsLoading } = useBuyerDeals();
   const createDealMutation = useCreateDeal();
+  const cancelDealMutation = useCancelDeal();
   
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
   const [selectedListingId, setSelectedListingId] = React.useState<string | null>(null);
 
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = React.useState(false);
+  const [dealToCancel, setDealToCancel] = React.useState<string | null>(null);
+
   const initiateBuy = (listingId: string) => {
     setSelectedListingId(listingId);
     setIsConfirmOpen(true);
+  };
+
+  const initiateCancel = (dealId: string) => {
+    setDealToCancel(dealId);
+    setIsCancelConfirmOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!dealToCancel) return;
+    try {
+      await cancelDealMutation.mutateAsync(dealToCancel);
+    } finally {
+      setIsCancelConfirmOpen(false);
+      setDealToCancel(null);
+    }
   };
 
   const handleConfirmBuy = async () => {
@@ -198,6 +217,19 @@ export const BuyerDashboard = () => {
         onCancel={() => {
           setIsConfirmOpen(false);
           setSelectedListingId(null);
+        }}
+      />
+      <ConfirmDialog
+        isOpen={isCancelConfirmOpen}
+        title="Ghairi Ofa"
+        message="Je, una uhakika unataka kughairi ofa hii? Hatua hii haiwezi kutenguliwa."
+        confirmText="Ndio, Ghairi"
+        cancelText="Rudi"
+        isLoading={cancelDealMutation.isPending}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => {
+          setIsCancelConfirmOpen(false);
+          setDealToCancel(null);
         }}
       />
       {/* Filter Sidebar */}
@@ -350,6 +382,7 @@ export const BuyerDashboard = () => {
                     <th className="p-4 font-semibold">Kiasi</th>
                     <th className="p-4 font-semibold">Jumla (TZS)</th>
                     <th className="p-4 font-semibold">Hali</th>
+                    <th className="p-4 font-semibold text-right">Vitendo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
@@ -365,6 +398,18 @@ export const BuyerDashboard = () => {
                           {deal.status === 'PENDING' && <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-medium">Inasubiri</span>}
                           {deal.status === 'ACCEPTED' && <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Imekubaliwa</span>}
                           {deal.status === 'REJECTED' && <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Imekataliwa</span>}
+                        </td>
+                        <td className="p-4 text-right">
+                          {deal.status === 'PENDING' && (
+                            <button 
+                              onClick={() => initiateCancel(deal.id)}
+                              disabled={cancelDealMutation.isPending}
+                              className="text-error hover:bg-error-container p-2 rounded-full transition-colors disabled:opacity-50"
+                              title="Ghairi Ofa (Cancel Offer)"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">cancel</span>
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -499,14 +544,46 @@ export const OfficerDashboard = () => {
   );
 };
 
-import { useAdminStats, useAdminRecentUsers } from '../features/admin/useAdmin';
+import { useAdminStats, useAdminRecentUsers, useUpdateUserStatus } from '../features/admin/useAdmin';
 
 export const AdminDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
   const { data: users, isLoading: usersLoading } = useAdminRecentUsers();
+  const updateStatusMutation = useUpdateUserStatus();
+
+  const [userToToggle, setUserToToggle] = React.useState<{ id: string; isActive: boolean } | null>(null);
+  const [isToggleConfirmOpen, setIsToggleConfirmOpen] = React.useState(false);
+
+  const initiateToggle = (user: { id: string; isActive: boolean }) => {
+    setUserToToggle(user);
+    setIsToggleConfirmOpen(true);
+  };
+
+  const handleConfirmToggle = async () => {
+    if (!userToToggle) return;
+    try {
+      await updateStatusMutation.mutateAsync({ id: userToToggle.id, isActive: !userToToggle.isActive });
+    } finally {
+      setIsToggleConfirmOpen(false);
+      setUserToToggle(null);
+    }
+  };
 
   return (
     <div className="flex-1 animate-in fade-in duration-500">
+      <ConfirmDialog
+        isOpen={isToggleConfirmOpen}
+        title={userToToggle?.isActive ? "Simamisha Akaunti" : "Washa Akaunti"}
+        message={`Je, unataka ${userToToggle?.isActive ? 'kusimamisha' : 'kuwasha'} akaunti hii? ${userToToggle?.isActive ? 'Mtumiaji huyu hataweza kuingia kwenye mfumo tena.' : 'Mtumiaji huyu ataweza kuingia kwenye mfumo tena.'}`}
+        confirmText="Ndio, Endelea"
+        cancelText="Ghairi"
+        isLoading={updateStatusMutation.isPending}
+        onConfirm={handleConfirmToggle}
+        onCancel={() => {
+          setIsToggleConfirmOpen(false);
+          setUserToToggle(null);
+        }}
+      />
       <header className="mb-xl">
         <h1 className="font-display-lg text-display-lg text-primary mb-xs">Admin Dashboard</h1>
         <p className="text-body-lg font-body-lg text-on-surface-variant">System overview, metrics, and user management.</p>
@@ -578,6 +655,7 @@ export const AdminDashboard = () => {
                   <th className="p-4 font-semibold">Role</th>
                   <th className="p-4 font-semibold">Joined At</th>
                   <th className="p-4 font-semibold">Status</th>
+                  <th className="p-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/50 font-body-sm text-on-surface">
@@ -595,6 +673,18 @@ export const AdminDashboard = () => {
                       ) : (
                         <span className="text-error font-bold text-xs flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">cancel</span> Inactive</span>
                       )}
+                    </td>
+                    <td className="p-4 text-right">
+                      <button 
+                        onClick={() => initiateToggle({ id: user.id, isActive: user.isActive })}
+                        disabled={updateStatusMutation.isPending}
+                        className={`p-2 rounded-full transition-colors disabled:opacity-50 ${user.isActive ? 'text-error hover:bg-error-container' : 'text-green-600 hover:bg-green-100'}`}
+                        title={user.isActive ? "Deactivate User" : "Activate User"}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          {user.isActive ? 'block' : 'check_circle'}
+                        </span>
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { DealsService } from './deals.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -36,5 +36,11 @@ export class DealsController {
     @Body('status') status: RequestStatus
   ) {
     return this.dealsService.respondToDeal(id, req.user.id, status);
+  }
+
+  @Delete(':id')
+  @Roles(Role.BUYER)
+  cancelDeal(@Request() req, @Param('id') id: string) {
+    return this.dealsService.cancelDeal(id, req.user.id);
   }
 }
