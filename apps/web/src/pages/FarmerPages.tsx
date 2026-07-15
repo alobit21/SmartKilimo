@@ -1,105 +1,259 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { useMyListings } from '../features/marketplace/useMarketplace';
+import { useFarms } from '../features/farms/useFarms';
+import { useCrops } from '../features/crops/useCrops';
+import { useMyAdvisoryRequests, useCreateAdvisoryRequest } from '../features/advisory/useAdvisory';
 
 export const FarmerCrops = () => {
+  const { data: farms, isLoading } = useFarms();
+
   return (
     <div className="flex-1 animate-in fade-in duration-500">
-      <header className="mb-xl">
-        <h1 className="font-display-lg text-display-lg text-primary mb-xs">Usimamizi wa Mazao</h1>
-        <p className="text-body-lg font-body-lg text-on-surface-variant">Fuatilia ukuaji wa mazao yako, ratiba za msimu, na matarajio ya mavuno.</p>
+      <header className="mb-xl flex justify-between items-end">
+        <div>
+          <h1 className="font-display-lg text-display-lg text-primary mb-xs">Usimamizi wa Mazao</h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant">Fuatilia ukuaji wa mazao yako, ratiba za msimu, na matarajio ya mavuno.</p>
+        </div>
+        <button className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+          <span className="material-symbols-outlined">add</span> Sajili Kitalu Kipya
+        </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg mb-xl">
-        {/* Farm Block A */}
-        <div className="bg-surface border border-outline-variant rounded-xl p-card_padding hover:border-primary transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
-                <span className="material-symbols-outlined">grass</span>
+      {isLoading ? (
+        <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
+      ) : farms?.length === 0 ? (
+        <div className="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">Hauna kitalu chochote kilichosajiliwa.</div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg mb-xl">
+          {farms?.map((farm, index) => (
+            <div key={farm.id} className="bg-surface border border-outline-variant rounded-xl p-card_padding hover:border-primary transition-all">
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${index % 2 === 0 ? 'bg-primary-container text-on-primary-container' : 'bg-tertiary-fixed text-on-tertiary-fixed-variant'}`}>
+                    <span className="material-symbols-outlined">{index % 2 === 0 ? 'grass' : 'filter_vintage'}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-title-md text-title-md text-on-surface">{farm.name}</h3>
+                    <p className="font-label-sm text-label-sm text-on-surface-variant">Eka {farm.sizeHectares}</p>
+                  </div>
+                </div>
+                <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Inakua Mzuri</span>
               </div>
-              <div>
-                <h3 className="font-title-md text-title-md text-on-surface">Kitalu A - Mahindi</h3>
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Eka 2.5 • Dodoma</p>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    <span>Maendeleo ya Ukuaji</span>
+                    <span>Siku {index * 15 + 10} / 90</span>
+                  </div>
+                  <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div className="h-full bg-primary" style={{ width: `${(index * 15 + 10) / 90 * 100}%` }}></div>
+                  </div>
+                </div>
+                
+                <div className="bg-surface-container-low p-4 rounded-lg flex justify-between items-center border border-outline-variant/50">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-on-surface-variant">water_drop</span>
+                    <span className="font-label-sm text-label-sm text-on-surface">{farm.soilNotes || 'Udongo mzuri'}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex gap-3">
+                <button className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
+                  Sasisha Hali
+                </button>
+                <button className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
+                  Tazama Ratiba
+                </button>
               </div>
             </div>
-            <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Inakua Mzuri</span>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-1">
-                <span>Maendeleo ya Ukuaji</span>
-                <span>Siku 45 / 120</span>
-              </div>
-              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: '37.5%' }}></div>
-              </div>
-            </div>
-            
-            <div className="bg-surface-container-low p-4 rounded-lg flex justify-between items-center border border-outline-variant/50">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-on-surface-variant">water_drop</span>
-                <span className="font-label-sm text-label-sm text-on-surface">Unyevu: 60% (Sawa)</span>
-              </div>
-              <div className="flex items-center gap-2 text-amber-700">
-                <span className="material-symbols-outlined">warning</span>
-                <span className="font-label-sm text-label-sm">Weka Mbolea (Siku 2)</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-6 flex gap-3">
-            <button className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
-              Sasisha Hali
-            </button>
-            <button className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
-              Tazama Ratiba
-            </button>
-          </div>
+          ))}
         </div>
+      )}
+    </div>
+  );
+};
 
-        {/* Farm Block B */}
-        <div className="bg-surface border border-outline-variant rounded-xl p-card_padding hover:border-primary transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
-                <span className="material-symbols-outlined">filter_vintage</span>
-              </div>
+export const FarmerAdvisory = () => {
+  const { data: requests, isLoading } = useMyAdvisoryRequests();
+  const { data: farms } = useFarms();
+  const { data: crops } = useCrops();
+  const createMutation = useCreateAdvisoryRequest();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [description, setDescription] = useState('');
+  const [selectedFarm, setSelectedFarm] = useState('');
+  const [selectedCrop, setSelectedCrop] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!description || !selectedFarm || !selectedCrop) return;
+
+    const formData = new FormData();
+    formData.append('farmId', selectedFarm);
+    formData.append('cropId', selectedCrop);
+    formData.append('title', 'Msaada wa Haraka');
+    formData.append('description', description);
+    
+    if (selectedFile) {
+      formData.append('photo', selectedFile);
+    }
+
+    await createMutation.mutateAsync(formData);
+    setIsModalOpen(false);
+    setDescription('');
+    setSelectedCrop('');
+    setSelectedFile(null);
+  };
+
+  return (
+    <div className="flex-1 animate-in fade-in duration-500">
+      <header className="mb-xl flex justify-between items-end">
+        <div>
+          <h1 className="font-display-lg text-display-lg text-primary mb-xs">Wataalamu (Advisory)</h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant">Uliza maswali na pata ushauri kutoka kwa maafisa ugani.</p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
+        >
+          <span className="material-symbols-outlined">add_a_photo</span> Omba Ushauri Mpya
+        </button>
+      </header>
+
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" 
+          style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        >
+          <div className="bg-surface rounded-3xl p-6 md:p-8 w-[95vw] md:w-[500px] max-w-full shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 className="text-title-lg font-bold mb-6 text-on-surface flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">support_agent</span>
+              Tuma Picha kwa Mtaalamu
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <h3 className="font-title-md text-title-md text-on-surface">Kitalu B - Alizeti</h3>
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Eka 1.0 • Kongwa</p>
+                <label className="block text-label-md font-bold mb-2 text-on-surface">Chagua Kitalu</label>
+                <select 
+                  className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  value={selectedFarm}
+                  onChange={(e) => setSelectedFarm(e.target.value)}
+                  required
+                >
+                  <option value="">-- Chagua Kitalu chako --</option>
+                  {farms?.map(f => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </select>
               </div>
-            </div>
-            <span className="bg-surface-container-highest text-on-surface px-3 py-1 rounded-full font-label-sm text-label-sm">Maandalizi</span>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-1">
-                <span>Maendeleo ya Ukuaji</span>
-                <span>Siku 0 / 90</span>
+
+              <div>
+                <label className="block text-label-md font-bold mb-2 text-on-surface">Chagua Zao</label>
+                <select 
+                  className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  value={selectedCrop}
+                  onChange={(e) => setSelectedCrop(e.target.value)}
+                  required
+                >
+                  <option value="">-- Chagua Zao lililohusika --</option>
+                  {crops?.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
-              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                <div className="h-full bg-outline-variant" style={{ width: '0%' }}></div>
+              
+              <div>
+                <label className="block text-label-md font-bold mb-2 text-on-surface">Eleza Tatizo (Magonjwa, Wadudu, n.k.)</label>
+                <textarea 
+                  className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
+                  rows={4}
+                  placeholder="Mfano: Mahindi yangu yanageuka rangi ya njano na yana madoa..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                />
               </div>
-            </div>
-            
-            <div className="bg-surface-container-low p-4 rounded-lg flex justify-between items-center border border-outline-variant/50">
-              <div className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined">check_circle</span>
-                <span className="font-label-sm text-label-sm">Udongo Uko Tayari</span>
+
+              <div>
+                <label className="block text-label-md font-bold mb-2 text-on-surface">Picha ya Zao (Hiari)</label>
+                <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
+                  <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
+                  <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha</span>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {selectedFile && (
+                    <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
+                      {selectedFile.name}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="mt-6 flex gap-3">
-            <button className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
-              Anza Kupanda
-            </button>
+
+              <div className="flex gap-4 mt-8 pt-4 border-t border-outline-variant">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
+                  Ghairi
+                </button>
+                <button type="submit" disabled={createMutation.isPending} className="flex-1 py-3 bg-primary text-on-primary rounded-xl flex items-center justify-center font-bold disabled:opacity-50 hover:shadow-md transition-all">
+                  {createMutation.isPending ? (
+                    <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin">sync</span> Inatuma...</span>
+                  ) : (
+                    'Tuma Ombi'
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
+
+      {isLoading ? (
+        <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
+      ) : requests?.length === 0 ? (
+        <div className="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">Hujatuma maombi yoyote kwa wataalamu.</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {requests?.map(req => (
+            <div key={req.id} className="bg-surface border border-outline-variant rounded-xl overflow-hidden hover:border-primary transition-all shadow-sm">
+              {req.photoUrl ? (
+                <div className="w-full h-48 bg-surface-container-highest">
+                  <img src={req.photoUrl} alt="Crop issue" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="w-full h-48 bg-surface-container-highest flex flex-col items-center justify-center text-on-surface-variant">
+                  <span className="material-symbols-outlined text-4xl mb-2">image_not_supported</span>
+                  <span className="text-label-sm">Hakuna picha</span>
+                </div>
+              )}
+              
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <span className={`px-2 py-1 rounded text-xs font-bold ${req.status === 'RESOLVED' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                    {req.status === 'RESOLVED' ? 'Imetatuliwa' : 'Inasubiri'}
+                  </span>
+                  <span className="text-label-sm text-on-surface-variant">{new Date(req.createdAt).toLocaleDateString()}</span>
+                </div>
+                
+                <h3 className="font-title-md mb-2 line-clamp-1">{req.farm?.name}</h3>
+                <p className="text-body-sm text-on-surface-variant line-clamp-3 mb-4">{req.description}</p>
+                
+                {req.status === 'RESOLVED' && req.responseNotes && (
+                  <div className="mt-4 p-3 bg-primary-container/20 border border-primary/30 rounded-lg">
+                    <p className="text-label-sm font-bold text-primary mb-1">Ushauri wa Mtaalamu:</p>
+                    <p className="text-body-sm text-on-surface">{req.responseNotes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

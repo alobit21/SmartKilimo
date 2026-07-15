@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/api-client';
-import { Crop } from '../marketplace/useMarketplace';
+import type { Crop } from '../marketplace/useMarketplace';
 
 export interface Recommendation {
   id: string;

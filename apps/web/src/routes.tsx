@@ -5,7 +5,7 @@ import { RoleShell } from './components/layout/RoleShell';
 import { BuyerShell } from './components/layout/BuyerShell';
 import { Role } from '@kilimosmart/shared-types';
 import { FarmerDashboard, BuyerDashboard, OfficerDashboard, AdminDashboard, CropRecommendations } from './pages/Dashboards';
-import { FarmerCrops, FarmerMarket, FarmerContracts } from './pages/FarmerPages';
+import { FarmerCrops, FarmerMarket, FarmerContracts, FarmerAdvisory } from './pages/FarmerPages';
 
 import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
@@ -26,6 +26,7 @@ export const AppRoutes = () => {
           <Route path="/farmer/crops" element={<FarmerCrops />} />
           <Route path="/farmer/market" element={<FarmerMarket />} />
           <Route path="/farmer/contracts" element={<FarmerContracts />} />
+          <Route path="/farmer/advisory" element={<FarmerAdvisory />} />
         </Route>
       </Route>
 

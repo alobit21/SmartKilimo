@@ -19,8 +19,13 @@ export class AdvisoryService {
     let photoUrl: string | undefined = undefined;
     
     if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
-      photoUrl = uploadResult.secure_url;
+      try {
+        const uploadResult = await this.cloudinaryService.uploadImage(file);
+        photoUrl = uploadResult.secure_url;
+      } catch (e) {
+        console.error('[Advisory] Image upload failed, saving request without photo:', e.message);
+        // Continue without the photo - don't block the advisory request
+      }
     }
 
     const request = this.advisoryRepository.create({

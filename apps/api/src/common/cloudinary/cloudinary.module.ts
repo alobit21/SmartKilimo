@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CloudinaryProvider } from './cloudinary.provider';
 import { CloudinaryService } from './cloudinary.service';
 
+// Removed CloudinaryProvider — CloudinaryService now handles config directly via ConfigService
 @Module({
-  providers: [CloudinaryProvider, CloudinaryService],
-  exports: [CloudinaryService, CloudinaryProvider],
+  providers: [CloudinaryService],
+  exports: [CloudinaryService],
 })
 export class CloudinaryModule {}

@@ -8,6 +8,9 @@ export class CreateAdvisoryDto {
   cropId: string;
 
   @IsString()
+  title: string;
+
+  @IsString()
   description: string;
 }
 

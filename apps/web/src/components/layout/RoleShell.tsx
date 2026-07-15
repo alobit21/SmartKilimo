@@ -52,10 +52,10 @@ export const RoleShell: React.FC = () => {
             <span className="font-title-md text-title-md">Soko</span>
           </Link>
           <Link 
-            to="/farmer/recommendations" 
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('recommendations') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+            to="/farmer/advisory" 
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('advisory') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
           >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('recommendations') ? "'FILL' 1" : "'FILL' 0" }}>group</span>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
             <span className="font-title-md text-title-md">Wataalamu</span>
           </Link>
           <Link 

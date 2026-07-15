@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Farm } from '../../farms/entities/farm.entity';
 import { Crop } from '../../crops/entities/crop.entity';
@@ -51,4 +51,7 @@ export class AdvisoryRequest {
 
   @Column({ type: 'text', nullable: true })
   responseNotes: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
