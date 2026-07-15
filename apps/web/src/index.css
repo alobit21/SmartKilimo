@@ -20,11 +20,18 @@
   --color-on-surface: #1c1b1b;
   --color-surface-variant: #e5e2e1;
   --color-on-surface-variant: #3f4942;
+  --color-surface-bright: #fcf9f8;
   --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f2;
   --color-surface-container: #f0eded;
+  --color-surface-container-high: #eae7e7;
   --color-surface-container-highest: #e5e2e1;
   --color-inverse-surface: #313030;
   --color-inverse-on-surface: #f3f0ef;
+  
+  --color-sky-set: #a9cdd8;
+  --color-sprout-tint: #D7EEE0;
+  --color-amber-ochre: #B9762A;
   
   --color-outline: #707a71;
   --color-outline-variant: #bfc9bf;
@@ -75,6 +82,14 @@
   --radius-button: 4px;
   --radius-card: 16px;
   --radius-pill: 9999px;
+}
+
+@layer utilities {
+  .soft-lift { box-shadow: 0 2px 8px rgba(26,26,26,0.08); }
+  .hairline-border { border: 1px solid #c7c2b8; }
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f0eded; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #707a71; border-radius: 10px; }
 }
 
 body { font-family: 'Inter', sans-serif; background-color: var(--color-surface); }

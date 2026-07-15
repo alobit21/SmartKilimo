@@ -6,16 +6,15 @@ import { Role } from '@kilimosmart/shared-types';
 
 import { LandingPage } from './pages/LandingPage';
 import { FarmerDashboard, BuyerDashboard, OfficerDashboard, AdminDashboard } from './pages/Dashboards';
-
-// Placeholder for Login
-const Login = () => <div className="p-8">Login Page (To be implemented)</div>;
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<div className="p-8">Register Page</div>} />
+      <Route path="/register" element={<Register />} />
 
       {/* Farmer Routes */}
       <Route element={<ProtectedRoute allowedRoles={[Role.FARMER]} />}>
