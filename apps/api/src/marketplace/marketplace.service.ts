@@ -47,29 +47,41 @@ export class MarketplaceService {
     const listings = await this.findAllActive();
     
     // Group by cropId
-    const summary = {};
+    const summary: Record<string, any> = {};
     for (const listing of listings) {
       if (!listing.crop) continue;
       const cropName = listing.crop.name;
+      const price = Number(listing.pricePerUnit);
       
       if (!summary[cropName]) {
-        summary[cropName] = { cropName, total: 0, count: 0, lastPrice: 0, trend: 'up' };
+        summary[cropName] = { 
+          cropName, 
+          total: 0, 
+          count: 0, 
+          lastPrice: 0, 
+          minPrice: price, 
+          maxPrice: price,
+          trend: 'up' 
+        };
       }
       
-      summary[cropName].total += Number(listing.pricePerUnit);
+      summary[cropName].total += price;
       summary[cropName].count += 1;
-      // Just picking the last one as a mock "last price" to generate a trend
-      summary[cropName].lastPrice = Number(listing.pricePerUnit); 
+      if (price < summary[cropName].minPrice) summary[cropName].minPrice = price;
+      if (price > summary[cropName].maxPrice) summary[cropName].maxPrice = price;
+      summary[cropName].lastPrice = price; 
     }
     
     // Calculate averages and format trend
     return Object.values(summary).map((data: any) => {
       const avg = Math.floor(data.total / data.count);
-      // Mock trend for visual appeal: if last price > avg, trend is up, else down
       const trend = data.lastPrice >= avg ? 'up' : 'down';
       return {
         cropName: data.cropName,
-        averagePrice: avg,
+        avgPrice: avg,
+        minPrice: data.minPrice,
+        maxPrice: data.maxPrice,
+        listingCount: data.count,
         unit: 'Kilo',
         trend
       };

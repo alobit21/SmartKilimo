@@ -2,6 +2,9 @@ import React from 'react';
 import { useTranslation } from '../lib/i18n';
 import { useCrops } from '../features/crops/useCrops';
 import { useMarketPrices } from '../features/marketplace/useMarketplace';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
+
+const COLORS = ['#4ade80', '#60a5fa', '#facc15', '#f87171', '#c084fc', '#fb923c'];
 
 export const OfficerMarket = () => {
   const { t } = useTranslation();
@@ -21,8 +24,39 @@ export const OfficerMarket = () => {
           Hakuna taarifa za bei za sokoni kwa sasa.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {prices.map((item: any) => (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-surface border border-outline-variant rounded-xl p-6 h-[350px]">
+              <h2 className="text-title-md font-bold mb-4">Wastani wa Bei Sokoni (TZS)</h2>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={prices} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis dataKey="cropName" tick={{ fill: '#6b7280', fontSize: 12 }} />
+                  <YAxis tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                  <Tooltip formatter={(value: number) => `${value.toLocaleString()} TZS`} />
+                  <Bar dataKey="avgPrice" name="Wastani" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="bg-surface border border-outline-variant rounded-xl p-6 h-[350px]">
+              <h2 className="text-title-md font-bold mb-4">Upatikanaji Sokoni (Wauzaji)</h2>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={prices} dataKey="listingCount" nameKey="cropName" cx="50%" cy="50%" outerRadius={100} label>
+                    {prices.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {prices.map((item: any) => (
             <div key={item.cropName} className="bg-surface border border-outline-variant rounded-xl p-6 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -57,7 +91,8 @@ export const OfficerMarket = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
