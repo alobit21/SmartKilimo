@@ -19,17 +19,44 @@ export class WeatherService {
       throw new NotFoundException(`Farm with ID ${farmId} not found`);
     }
 
-    // MOCK INTEGRATION: Simulating OpenWeather API fetch for Phase 1
-    // We generate realistic weather data based on latitude/longitude
-    const mockTemp = 22 + Math.random() * 10; // 22-32 C
-    const mockRainfall = Math.random() * 100; // 0-100 mm
+    let temp = 25;
+    let rainfall = 0;
+    let humidity = 50;
+    let windSpeed = 5;
+
+    try {
+      const apiKey = process.env.OPENWEATHER_API_KEY;
+      if (apiKey && apiKey !== 'your-openweather-api-key') {
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${farm.latitude}&lon=${farm.longitude}&appid=${apiKey}&units=metric`;
+        const res = await fetch(url);
+        
+        if (res.ok) {
+          const data = await res.json();
+          temp = data.main?.temp || temp;
+          humidity = data.main?.humidity || humidity;
+          windSpeed = data.wind?.speed || windSpeed;
+          // OpenWeather sometimes provides rainfall in the past 1h
+          rainfall = data.rain?.['1h'] || 0;
+        } else {
+          console.warn('[WeatherService] OpenWeather API responded with error:', res.status);
+        }
+      } else {
+        console.warn('[WeatherService] No valid OpenWeather API key found, using mock data.');
+        temp = 22 + Math.random() * 10;
+        rainfall = Math.random() * 10;
+        humidity = 40 + Math.random() * 40;
+        windSpeed = Math.random() * 20;
+      }
+    } catch (e) {
+      console.error('[WeatherService] Failed to fetch weather:', e.message);
+    }
     
     const record = this.weatherRepository.create({
       farmId,
-      temperature: mockTemp,
-      rainfall: mockRainfall,
-      humidity: 40 + Math.random() * 40,
-      windSpeed: Math.random() * 20,
+      temperature: temp,
+      rainfall: rainfall,
+      humidity: humidity,
+      windSpeed: windSpeed,
     });
 
     return this.weatherRepository.save(record);

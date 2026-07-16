@@ -38,7 +38,7 @@ export class MarketplaceService {
   async findAllActive(): Promise<Listing[]> {
     return this.listingRepository.find({
       where: { status: ListingStatus.ACTIVE },
-      relations: { farmer: true, crop: true },
+      relations: { farmer: { farmerProfile: true }, crop: true },
     });
   }
 

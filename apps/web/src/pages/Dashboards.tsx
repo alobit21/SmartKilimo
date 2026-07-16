@@ -174,6 +174,52 @@ export const BuyerDashboard = () => {
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = React.useState(false);
   const [dealToCancel, setDealToCancel] = React.useState<string | null>(null);
 
+  // Filter States
+  const [selectedCrops, setSelectedCrops] = React.useState<string[]>([]);
+  const [selectedRegion, setSelectedRegion] = React.useState<string | null>(null);
+  const [minPrice, setMinPrice] = React.useState<number | ''>('');
+  const [maxPrice, setMaxPrice] = React.useState<number | ''>('');
+  const [sortBy, setSortBy] = React.useState<string>('Mpya Zaidi');
+
+  const filteredListings = React.useMemo(() => {
+    if (!listings) return [];
+    let result = [...listings];
+
+    if (selectedCrops.length > 0) {
+      result = result.filter(l => l.crop?.name && selectedCrops.includes(l.crop.name));
+    }
+    if (selectedRegion) {
+      result = result.filter(l => l.farmer?.farmerProfile?.region === selectedRegion);
+    }
+    if (minPrice !== '') {
+      result = result.filter(l => l.pricePerUnit >= Number(minPrice));
+    }
+    if (maxPrice !== '') {
+      result = result.filter(l => l.pricePerUnit <= Number(maxPrice));
+    }
+
+    if (sortBy === 'Bei ya Chini Kwanza') {
+      result.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+    } else if (sortBy === 'Bei ya Juu Kwanza') {
+      result.sort((a, b) => b.pricePerUnit - a.pricePerUnit);
+    }
+    return result;
+  }, [listings, selectedCrops, selectedRegion, minPrice, maxPrice, sortBy]);
+
+  const toggleCrop = (cropName: string) => {
+    setSelectedCrops(prev => 
+      prev.includes(cropName) ? prev.filter(c => c !== cropName) : [...prev, cropName]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedCrops([]);
+    setSelectedRegion(null);
+    setMinPrice('');
+    setMaxPrice('');
+    setSortBy('Mpya Zaidi');
+  };
+
   const initiateBuy = (listingId: string) => {
     setSelectedListingId(listingId);
     setIsConfirmOpen(true);
@@ -237,58 +283,61 @@ export const BuyerDashboard = () => {
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-card_padding">
           <div className="flex items-center justify-between mb-md">
             <h2 className="font-title-md text-title-md text-on-surface">Vichujio</h2>
-            <button className="text-label-sm text-primary hover:underline">Futa yote</button>
+            <button onClick={clearFilters} className="text-label-sm text-primary hover:underline">Futa yote</button>
           </div>
           {/* Crop Type Filter */}
           <div className="mb-lg">
             <p className="font-label-lg text-label-lg text-on-surface-variant mb-sm">Aina ya Mazao</p>
             <div className="space-y-sm">
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input defaultChecked className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" type="checkbox"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Mahindi (Maize)</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" type="checkbox"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Mpunga (Rice)</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" type="checkbox"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Maharage (Beans)</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" type="checkbox"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Ngano (Wheat)</span>
-              </label>
+              {['Mahindi', 'Alizeti', 'Maharagwe', 'Sesame'].map(crop => (
+                <label key={crop} className="flex items-center gap-sm cursor-pointer group">
+                  <input 
+                    type="checkbox"
+                    checked={selectedCrops.includes(crop)}
+                    onChange={() => toggleCrop(crop)}
+                    className="w-5 h-5 rounded border-outline text-primary focus:ring-primary" 
+                  />
+                  <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">{crop}</span>
+                </label>
+              ))}
             </div>
           </div>
           {/* Region Filter */}
           <div className="mb-lg border-t border-outline-variant pt-lg">
             <p className="font-label-lg text-label-lg text-on-surface-variant mb-sm">Mkoa / Wilaya</p>
             <div className="space-y-sm">
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 border-outline text-primary focus:ring-primary" name="region" type="radio"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Iringa</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 border-outline text-primary focus:ring-primary" name="region" type="radio"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Zanzibar</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 border-outline text-primary focus:ring-primary" name="region" type="radio"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Morogoro</span>
-              </label>
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input className="w-5 h-5 border-outline text-primary focus:ring-primary" name="region" type="radio"/>
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Mbeya</span>
-              </label>
+              {['Dodoma', 'Iringa', 'Morogoro', 'Mbeya'].map(region => (
+                <label key={region} className="flex items-center gap-sm cursor-pointer group">
+                  <input 
+                    type="radio" 
+                    name="region" 
+                    checked={selectedRegion === region}
+                    onChange={() => setSelectedRegion(region)}
+                    className="w-5 h-5 border-outline text-primary focus:ring-primary" 
+                  />
+                  <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">{region}</span>
+                </label>
+              ))}
             </div>
           </div>
           {/* Price Range */}
           <div className="border-t border-outline-variant pt-lg">
             <p className="font-label-lg text-label-lg text-on-surface-variant mb-sm">Bei (TZS/kg)</p>
             <div className="grid grid-cols-2 gap-sm">
-              <input className="w-full text-xs p-2 rounded border border-outline-variant bg-background" placeholder="Kiwango cha chini" type="number"/>
-              <input className="w-full text-xs p-2 rounded border border-outline-variant bg-background" placeholder="Kiwango cha juu" type="number"/>
+              <input 
+                type="number" 
+                value={minPrice}
+                onChange={e => setMinPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                className="w-full text-xs p-2 rounded border border-outline-variant bg-background" 
+                placeholder="Kiwango cha chini" 
+              />
+              <input 
+                type="number" 
+                value={maxPrice}
+                onChange={e => setMaxPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                className="w-full text-xs p-2 rounded border border-outline-variant bg-background" 
+                placeholder="Kiwango cha juu" 
+              />
             </div>
           </div>
         </div>
@@ -308,14 +357,18 @@ export const BuyerDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
           <div>
             <h1 className="font-display-md text-display-md font-bold text-on-surface">Viwango vya Soko</h1>
-            <p className="text-on-surface-variant font-body-md">Bidhaa {listings?.length || 0} zilizopatikana nchini Tanzania</p>
+            <p className="text-on-surface-variant font-body-md">Bidhaa {filteredListings.length} zilizopatikana nchini Tanzania</p>
           </div>
           <div className="flex items-center gap-sm">
             <span className="font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap">Panga kwa:</span>
-            <select className="bg-surface-container-low border border-outline-variant rounded-full px-4 py-2 font-label-lg text-label-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-surface-container-low border border-outline-variant rounded-full px-4 py-2 font-label-lg text-label-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option>Mpya Zaidi</option>
               <option>Bei ya Chini Kwanza</option>
               <option>Bei ya Juu Kwanza</option>
-              <option>Mpya Zaidi</option>
             </select>
           </div>
         </div>
@@ -324,12 +377,12 @@ export const BuyerDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg mb-xl">
           {listingsLoading ? (
             <div className="col-span-full p-8 text-center text-on-surface-variant">Inapakia bidhaa...</div>
-          ) : listings?.length === 0 ? (
+          ) : filteredListings.length === 0 ? (
             <div className="col-span-full p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">
-              Hakuna bidhaa sokoni kwa sasa.
+              Hakuna bidhaa sokoni kwa sasa inayokidhi vichujio vyako.
             </div>
           ) : (
-            listings?.map(listing => (
+            filteredListings.map(listing => (
               <div key={listing.id} className="listing-card bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden soft-lift flex flex-col h-full group">
                 <div className="relative h-48 w-full overflow-hidden bg-surface-container-highest flex items-center justify-center">
                   {listing.photoUrl ? (

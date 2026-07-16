@@ -18,7 +18,11 @@ export interface Listing {
   crop: Crop;
   farmer: {
     id: string;
-    name: string;
+    name?: string;
+    fullName?: string;
+    farmerProfile?: {
+      region: string;
+    };
   };
 }
 
