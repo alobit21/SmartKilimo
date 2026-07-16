@@ -72,6 +72,51 @@ export const RoleShell: React.FC = () => {
               </Link>
             </>
           )}
+
+          {role === 'ADMIN' && (
+            <>
+              <Link 
+                to="/admin/users" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('/admin/users') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/admin/users') ? "'FILL' 1" : "'FILL' 0" }}>group</span>
+                <span className="font-title-md text-title-md">Watumiaji (Users)</span>
+              </Link>
+              <Link 
+                to="/admin/crops" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('/admin/crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/admin/crops') ? "'FILL' 1" : "'FILL' 0" }}>psychiatry</span>
+                <span className="font-title-md text-title-md">Kanzi ya Mazao</span>
+              </Link>
+              <Link 
+                to="/admin/market" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('/admin/market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/admin/market') ? "'FILL' 1" : "'FILL' 0" }}>monitoring</span>
+                <span className="font-title-md text-title-md">Soko (Market)</span>
+              </Link>
+            </>
+          )}
+
+          {role === 'OFFICER' && (
+            <>
+              <Link 
+                to="/officer/market" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('/officer/market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/officer/market') ? "'FILL' 1" : "'FILL' 0" }}>trending_up</span>
+                <span className="font-title-md text-title-md">Mwenendo wa Soko</span>
+              </Link>
+              <Link 
+                to="/officer/crops" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('/officer/crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/officer/crops') ? "'FILL' 1" : "'FILL' 0" }}>local_library</span>
+                <span className="font-title-md text-title-md">Rejea za Mazao</span>
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="mt-auto pt-6 border-t border-outline-variant">

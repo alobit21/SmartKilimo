@@ -6,6 +6,8 @@ import { BuyerShell } from './components/layout/BuyerShell';
 import { Role } from '@kilimosmart/shared-types';
 import { FarmerDashboard, BuyerDashboard, OfficerDashboard, AdminDashboard, CropRecommendations } from './pages/Dashboards';
 import { FarmerCrops, FarmerMarket, FarmerContracts, FarmerAdvisory } from './pages/FarmerPages';
+import { AdminUsers, AdminCrops, AdminMarket } from './pages/AdminPages';
+import { OfficerMarket, OfficerCrops } from './pages/OfficerPages';
 
 import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
@@ -41,6 +43,8 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute allowedRoles={[Role.OFFICER]} />}>
         <Route element={<RoleShell />}>
           <Route path="/officer" element={<OfficerDashboard />} />
+          <Route path="/officer/market" element={<OfficerMarket />} />
+          <Route path="/officer/crops" element={<OfficerCrops />} />
         </Route>
       </Route>
 
@@ -48,6 +52,9 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute allowedRoles={[Role.ADMIN]} />}>
         <Route element={<RoleShell />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/crops" element={<AdminCrops />} />
+          <Route path="/admin/market" element={<AdminMarket />} />
         </Route>
       </Route>
 
