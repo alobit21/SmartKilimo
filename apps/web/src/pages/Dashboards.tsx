@@ -575,6 +575,7 @@ export const OfficerDashboard = () => {
 };
 
 import { useAdminStats, useAdminRecentUsers, useUpdateUserStatus } from '../features/admin/useAdmin';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
 
 export const AdminDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
@@ -665,6 +666,59 @@ export const AdminDashboard = () => {
               <p className="text-xs text-amber-600 mb-1">({stats?.pendingAdvisories} pending)</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-xl">
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl h-[350px]">
+          <h2 className="text-title-md font-bold mb-4">Workflow Status (Total vs Pending)</h2>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={[
+              { name: 'Miamala (Deals)', Total: stats?.totalDeals || 0, Pending: stats?.pendingDeals || 0 },
+              { name: 'Ushauri (Advisory)', Total: stats?.totalAdvisoryRequests || 0, Pending: stats?.pendingAdvisories || 0 },
+            ]} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey="name" tick={{ fill: '#6b7280', fontSize: 12 }} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Pending" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl h-[350px]">
+          <h2 className="text-title-md font-bold mb-4">System Overview</h2>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie 
+                data={[
+                  { name: 'Watumiaji', value: stats?.totalUsers || 0 },
+                  { name: 'Matangazo', value: stats?.totalListings || 0 },
+                  { name: 'Miamala', value: stats?.totalDeals || 0 },
+                  { name: 'Ushauri', value: stats?.totalAdvisoryRequests || 0 },
+                ]} 
+                dataKey="value" 
+                nameKey="name" 
+                cx="50%" 
+                cy="50%" 
+                outerRadius={100} 
+                label
+              >
+                {[
+                  { name: 'Watumiaji', value: stats?.totalUsers || 0 },
+                  { name: 'Matangazo', value: stats?.totalListings || 0 },
+                  { name: 'Miamala', value: stats?.totalDeals || 0 },
+                  { name: 'Ushauri', value: stats?.totalAdvisoryRequests || 0 },
+                ].map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'][index % 4]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

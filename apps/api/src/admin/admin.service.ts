@@ -46,13 +46,12 @@ export class AdminService {
       name: user.email ? user.email.split('@')[0] : 'User',
       role: user.role,
       createdAt: user.createdAt,
-      isActive: true // Mocked for now until schema update
+      isActive: user.isActive
     }));
   }
 
   async updateUserStatus(id: string, isActive: boolean) {
-    // In a real scenario, this would update the user's isActive field
-    // await this.userRepository.update(id, { isActive });
-    return { success: true, id, isActive, message: 'User status updated (Mocked)' };
+    await this.userRepository.update(id, { isActive });
+    return { success: true, id, isActive, message: 'User status updated successfully' };
   }
 }

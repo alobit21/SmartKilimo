@@ -51,6 +51,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (user.isActive === false) {
+      throw new UnauthorizedException('Akaunti yako imesimamishwa (Your account has been deactivated)');
+    }
+
     const isMatch = await bcrypt.compare(loginDto.password, user.passwordHash);
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
