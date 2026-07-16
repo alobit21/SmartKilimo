@@ -1,43 +1,72 @@
-import React from 'react';
-import { Card } from '../ui/Card';
-import { CloudRain, Sun, Wind, Droplets } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useLatestWeather, useFetchWeather } from '../../features/weather/useWeather';
+import { useFarms } from '../../features/farms/useFarms';
 
 export const WeatherWidget = () => {
-  // In a real app, this would fetch from OpenWeatherMap API using the useQuery hook
+  const { data: farms, isLoading: farmsLoading } = useFarms();
+  const farmId = farms?.[0]?.id;
+
+  const { data: weather, isLoading: weatherLoading, error: weatherError } = useLatestWeather(farmId);
+  const fetchWeatherMutation = useFetchWeather();
+
+  useEffect(() => {
+    // If no weather exists for this farm yet (404), fetch it automatically once!
+    if (farmId && weatherError && (weatherError as any).response?.status === 404 && !fetchWeatherMutation.isPending) {
+      fetchWeatherMutation.mutate(farmId);
+    }
+  }, [farmId, weatherError]);
+
+  const isLoading = farmsLoading || weatherLoading || fetchWeatherMutation.isPending;
+
   return (
-    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-slate-900 border-none shadow-md overflow-hidden relative">
-      <div className="absolute top-0 right-0 p-4 opacity-10">
-        <Sun size={120} />
+    <div className="md:col-span-4 bg-sky-set rounded-xl p-6 soft-lift flex flex-col justify-between min-h-[220px]">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">
+            {farms?.[0]?.name ? `Hali ya Hewa: ${farms[0].name}` : 'Hali ya Hewa'}
+          </p>
+          {isLoading ? (
+            <h3 className="font-display-lg text-display-lg font-bold mt-1 text-on-surface/50 text-2xl">Inapakia...</h3>
+          ) : (
+            <>
+              <h3 className="font-display-lg text-display-lg font-bold mt-1">
+                {weather ? `${Math.round(weather.temperature)}°C` : '--°C'}
+              </h3>
+              <p className="font-body-md text-body-md">
+                {weather?.rainfall > 0 ? `Mvua: ${weather.rainfall}mm` : 'Hakuna Mvua'}
+              </p>
+            </>
+          )}
+        </div>
+        <span className="material-symbols-outlined text-[48px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+          {weather?.rainfall > 0 ? 'rainy' : 'cloudy_filled'}
+        </span>
       </div>
       
-      <div className="p-6 relative z-10">
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
-          <CloudRain className="w-5 h-5" /> Today's Forecast
-        </h3>
-        
-        <div className="flex items-end gap-4 mb-6">
-          <span className="text-5xl font-bold text-blue-900 dark:text-white">24°</span>
-          <span className="text-lg text-blue-700 dark:text-blue-200 mb-1">Partly Cloudy</span>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm">
-            <Droplets className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Humidity</p>
-              <p className="font-semibold text-slate-700 dark:text-slate-200">65%</p>
-            </div>
+      {!isLoading && weather && (
+        <div className="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-white/20">
+          <div className="text-center">
+            <p className="text-label-sm font-label-sm opacity-70">Unyevu</p>
+            <p className="font-title-md">{Math.round(weather.humidity)}%</p>
           </div>
-          
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm">
-            <Wind className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Wind</p>
-              <p className="font-semibold text-slate-700 dark:text-slate-200">12 km/h</p>
-            </div>
+          <div className="text-center">
+            <p className="text-label-sm font-label-sm opacity-70">Upepo</p>
+            <p className="font-title-md">{Math.round(weather.windSpeed)}m/s</p>
+          </div>
+          <div className="text-center">
+            <p className="text-label-sm font-label-sm opacity-70">Mvua</p>
+            <p className="font-title-md">{weather.rainfall}mm</p>
           </div>
         </div>
-      </div>
-    </Card>
+      )}
+      
+      <button 
+        onClick={() => farmId && fetchWeatherMutation.mutate(farmId)}
+        disabled={fetchWeatherMutation.isPending || !farmId}
+        className="mt-4 text-xs bg-white/20 hover:bg-white/30 transition-colors py-1 px-3 rounded-full self-start disabled:opacity-50"
+      >
+        {fetchWeatherMutation.isPending ? 'Inasasisha...' : 'Sasisha Sasa'}
+      </button>
+    </div>
   );
 };

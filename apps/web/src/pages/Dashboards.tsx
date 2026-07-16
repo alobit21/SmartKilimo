@@ -11,30 +11,7 @@ export const FarmerDashboard = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
       {/* Weather Snapshot Card (Spans 4 columns) */}
-      <div className="md:col-span-4 bg-sky-set rounded-xl p-6 soft-lift flex flex-col justify-between min-h-[220px]">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Hali ya Hewa</p>
-            <h3 className="font-display-lg text-display-lg font-bold mt-1">28°C</h3>
-            <p className="font-body-md text-body-md">Mvua za hapa na pale</p>
-          </div>
-          <span className="material-symbols-outlined text-[48px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>cloudy_filled</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-white/20">
-          <div className="text-center">
-            <p className="text-label-sm font-label-sm opacity-70">Unyevu</p>
-            <p className="font-title-md">65%</p>
-          </div>
-          <div className="text-center">
-            <p className="text-label-sm font-label-sm opacity-70">Upepo</p>
-            <p className="font-title-md">12km/s</p>
-          </div>
-          <div className="text-center">
-            <p className="text-label-sm font-label-sm opacity-70">UV</p>
-            <p className="font-title-md">7.2</p>
-          </div>
-        </div>
-      </div>
+      <WeatherWidget />
 
       {/* Crop Recommendation Card (Spans 8 columns) */}
       <div className="md:col-span-8 bg-sprout-tint rounded-xl p-6 soft-lift flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
@@ -750,7 +727,15 @@ export const AdminDashboard = () => {
   );
 };
 
+import { useNavigate } from 'react-router-dom';
+
 export const CropRecommendations = () => {
+  const navigate = useNavigate();
+
+  const handleDownload = () => {
+    alert('Ripoti inapakuliwa. Tafadhali subiri...');
+  };
+
   return (
     <div className="flex-1 animate-in fade-in duration-500">
       <header className="mb-xl">
@@ -799,7 +784,7 @@ export const CropRecommendations = () => {
           <p className="text-body-md font-body-md text-on-surface-variant flex-1">
             Alizeti inastahimili ukame wa Dodoma na soko la mafuta lina uhitaji mkubwa sana msimu huu.
           </p>
-          <button className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
+          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
             Orodhesha Zao Hili
           </button>
         </div>
@@ -837,7 +822,7 @@ export const CropRecommendations = () => {
           <p className="text-body-md font-body-md text-on-surface-variant flex-1">
             Maharagwe yanahitaji uangalizi wa unyevunyevu kidogo zaidi lakini yana soko la uhakika la ndani.
           </p>
-          <button className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
+          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
             Orodhesha Zao Hili
           </button>
         </div>
@@ -876,7 +861,7 @@ export const CropRecommendations = () => {
               "Sesame prefers less rainfall than your area gets. Nearby areas in Bahi district are better suited for this crop's peak yield."
             </p>
           </div>
-          <button className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
+          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
             Orodhesha Zao Hili
           </button>
         </div>
@@ -886,7 +871,7 @@ export const CropRecommendations = () => {
       <section className="mt-xxl border border-outline-variant rounded-xl overflow-hidden bg-surface">
         <div className="p-lg bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
           <h2 className="font-title-md text-title-md text-on-surface">Uchambuzi wa Udongo (Dodoma Zone)</h2>
-          <button className="text-primary font-label-lg text-label-lg flex items-center gap-xs">
+          <button onClick={handleDownload} className="text-primary font-label-lg text-label-lg flex items-center gap-xs hover:opacity-80">
             <span className="material-symbols-outlined">download</span> Pakua Ripoti Kamili
           </button>
         </div>

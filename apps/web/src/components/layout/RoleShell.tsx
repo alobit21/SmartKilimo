@@ -19,8 +19,8 @@ export const RoleShell: React.FC = () => {
     navigate('/login');
   };
 
-  // Mocking links based on role - specific to Farmer for now
-  const isFarmer = user?.role === 'FARMER' || true; // Force true for demo purposes to match design
+  // Mocking links based on role
+  const role = user?.role || 'FARMER';
 
   return (
     <div className="bg-background text-on-background min-h-screen flex">
@@ -33,38 +33,43 @@ export const RoleShell: React.FC = () => {
         
         <nav className="flex-1 space-y-2">
           {/* Active: Dashboard */}
-          <Link to={`/${user?.role?.toLowerCase() || 'farmer'}`} className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('dashboard') || location.pathname === '/farmer' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('dashboard') || location.pathname === '/farmer' ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
+          <Link to={`/${role.toLowerCase()}`} className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('dashboard') || location.pathname === `/${role.toLowerCase()}` ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('dashboard') || location.pathname === `/${role.toLowerCase()}` ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
             <span className="font-title-md text-title-md">Dashboard</span>
           </Link>
-          <Link 
-            to="/farmer/crops" 
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
-            <span className="font-title-md text-title-md">Mazao</span>
-          </Link>
-          <Link 
-            to="/farmer/market" 
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
-            <span className="font-title-md text-title-md">Soko</span>
-          </Link>
-          <Link 
-            to="/farmer/advisory" 
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('advisory') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
-            <span className="font-title-md text-title-md">Wataalamu</span>
-          </Link>
-          <Link 
-            to="/farmer/contracts" 
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('contracts') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('contracts') ? "'FILL' 1" : "'FILL' 0" }}>description</span>
-            <span className="font-title-md text-title-md">Mkataba</span>
-          </Link>
+          
+          {role === 'FARMER' && (
+            <>
+              <Link 
+                to="/farmer/crops" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
+                <span className="font-title-md text-title-md">Mazao</span>
+              </Link>
+              <Link 
+                to="/farmer/market" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
+                <span className="font-title-md text-title-md">Soko</span>
+              </Link>
+              <Link 
+                to="/farmer/advisory" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('advisory') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
+                <span className="font-title-md text-title-md">Wataalamu</span>
+              </Link>
+              <Link 
+                to="/farmer/contracts" 
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('contracts') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('contracts') ? "'FILL' 1" : "'FILL' 0" }}>description</span>
+                <span className="font-title-md text-title-md">Mkataba</span>
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="mt-auto pt-6 border-t border-outline-variant">
@@ -128,22 +133,27 @@ export const RoleShell: React.FC = () => {
 
       {/* Mobile Navigation Bar (Fixed Bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant px-4 py-4 flex justify-around items-center z-50">
-        <Link to={`/${user?.role?.toLowerCase() || 'farmer'}`} className={`flex flex-col items-center ${location.pathname === '/farmer' ? 'text-primary' : 'text-on-surface-variant'}`}>
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/farmer' ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
+        <Link to={`/${role.toLowerCase()}`} className={`flex flex-col items-center ${location.pathname === `/${role.toLowerCase()}` ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === `/${role.toLowerCase()}` ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
           <span className="text-xs font-label-sm mt-1">Home</span>
         </Link>
-        <Link to="/farmer/crops" className={`flex flex-col items-center ${location.pathname.includes('/crops') ? 'text-primary' : 'text-on-surface-variant'}`}>
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
-          <span className="text-xs font-label-sm mt-1">Mazao</span>
-        </Link>
-        <Link to="/farmer/market" className={`flex flex-col items-center ${location.pathname.includes('/market') ? 'text-primary' : 'text-on-surface-variant'}`}>
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
-          <span className="text-xs font-label-sm mt-1">Soko</span>
-        </Link>
-        <Link to="/farmer/advisory" className={`flex flex-col items-center ${location.pathname.includes('/advisory') ? 'text-primary' : 'text-on-surface-variant'}`}>
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
-          <span className="text-xs font-label-sm mt-1">Wataalamu</span>
-        </Link>
+        
+        {role === 'FARMER' && (
+          <>
+            <Link to="/farmer/crops" className={`flex flex-col items-center ${location.pathname.includes('/crops') ? 'text-primary' : 'text-on-surface-variant'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
+              <span className="text-xs font-label-sm mt-1">Mazao</span>
+            </Link>
+            <Link to="/farmer/market" className={`flex flex-col items-center ${location.pathname.includes('/market') ? 'text-primary' : 'text-on-surface-variant'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
+              <span className="text-xs font-label-sm mt-1">Soko</span>
+            </Link>
+            <Link to="/farmer/advisory" className={`flex flex-col items-center ${location.pathname.includes('/advisory') ? 'text-primary' : 'text-on-surface-variant'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('/advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
+              <span className="text-xs font-label-sm mt-1">Wataalamu</span>
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* Interactive FAB for mobile only */}

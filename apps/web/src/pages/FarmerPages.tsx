@@ -1,26 +1,119 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { useMyListings, useCreateListing, useUpdateListing, useDeleteListing } from '../features/marketplace/useMarketplace';
-import { useFarms } from '../features/farms/useFarms';
+import { useFarms, useCreateFarm } from '../features/farms/useFarms';
 import { useCrops } from '../features/crops/useCrops';
 import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryRequest, useDeleteAdvisoryRequest } from '../features/advisory/useAdvisory';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useFarmerDeals, useRespondDeal } from '../features/deals/useDeals';
+import { LocationPickerMap } from '../components/ui/LocationPickerMap';
 
 export const FarmerCrops = () => {
   const { data: farms, isLoading } = useFarms();
+  const createFarmMutation = useCreateFarm();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    sizeHectares: '',
+    latitude: '',
+    longitude: '',
+    soilNotes: ''
+  });
+
+  const handleCreateFarm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createFarmMutation.mutateAsync({
+      name: formData.name,
+      sizeHectares: Number(formData.sizeHectares),
+      latitude: Number(formData.latitude),
+      longitude: Number(formData.longitude),
+      soilNotes: formData.soilNotes
+    });
+    setIsModalOpen(false);
+    setFormData({ name: '', sizeHectares: '', latitude: '', longitude: '', soilNotes: '' });
+  };
 
   return (
-    <div className="flex-1 animate-in fade-in duration-500">
+    <div className="flex-1 animate-in fade-in duration-500 relative">
       <header className="mb-xl flex justify-between items-end">
         <div>
           <h1 className="font-display-lg text-display-lg text-primary mb-xs">Usimamizi wa Mazao</h1>
           <p className="text-body-lg font-body-lg text-on-surface-variant">Fuatilia ukuaji wa mazao yako, ratiba za msimu, na matarajio ya mavuno.</p>
         </div>
-        <button className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
+        >
           <span className="material-symbols-outlined">add</span> Sajili Kitalu Kipya
         </button>
       </header>
+
+      {/* Create Farm Modal (Full Screen Split Layout) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-background z-[9999] flex flex-col md:flex-row overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
+          
+          {/* Left Side: Form */}
+          <div className="w-full md:w-[450px] lg:w-[500px] bg-surface h-full flex flex-col shadow-2xl z-10 shrink-0">
+            <div className="p-6 border-b border-outline-variant flex justify-between items-center bg-surface sticky top-0 z-20">
+              <h2 className="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">landscape</span> Sajili Kitalu Kipya
+              </h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+              <form onSubmit={handleCreateFarm} className="space-y-6">
+                <div>
+                  <label className="block text-label-md font-bold mb-2">Jina la Kitalu/Shamba</label>
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all" placeholder="Mf. Shamba la Morogoro" />
+                </div>
+                
+                <div>
+                  <label className="block text-label-md font-bold mb-2">Ukubwa (Hekari)</label>
+                  <input required type="number" step="0.1" min="0.1" value={formData.sizeHectares} onChange={e => setFormData({...formData, sizeHectares: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all" placeholder="Mf. 2.5" />
+                </div>
+                
+                <div className="p-4 bg-surface-container rounded-xl border border-outline-variant/50 space-y-4">
+                  <p className="font-label-md text-primary flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">location_on</span> Eneo la Kitalu (Tafuta kwenye ramani)
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-label-sm font-bold mb-1 text-on-surface-variant">Latitude</label>
+                      <input required type="number" step="any" value={formData.latitude} onChange={e => setFormData({...formData, latitude: e.target.value})} className="w-full p-3 border border-outline-variant rounded-lg bg-surface-container-lowest focus:border-primary focus:ring-1 outline-none font-mono text-sm" placeholder="-6.173" />
+                    </div>
+                    <div>
+                      <label className="block text-label-sm font-bold mb-1 text-on-surface-variant">Longitude</label>
+                      <input required type="number" step="any" value={formData.longitude} onChange={e => setFormData({...formData, longitude: e.target.value})} className="w-full p-3 border border-outline-variant rounded-lg bg-surface-container-lowest focus:border-primary focus:ring-1 outline-none font-mono text-sm" placeholder="35.738" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-label-md font-bold mb-2">Aina ya Udongo (Hiari)</label>
+                  <textarea rows={3} value={formData.soilNotes} onChange={e => setFormData({...formData, soilNotes: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all resize-none" placeholder="Mf. Udongo Tifu Tifu unaohifadhi maji..." />
+                </div>
+                
+                <button type="submit" disabled={createFarmMutation.isPending} className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold mt-8 text-label-lg hover:shadow-lg disabled:opacity-50 transition-all flex justify-center items-center gap-2 active:scale-[0.98]">
+                  {createFarmMutation.isPending ? <><span className="material-symbols-outlined animate-spin">sync</span> Inasajili...</> : 'Hifadhi Kitalu Kipya'}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Right Side: Interactive Map */}
+          <div className="flex-1 h-[40vh] md:h-full relative bg-surface-container">
+            <LocationPickerMap 
+              latitude={formData.latitude === '' ? '' : Number(formData.latitude)} 
+              longitude={formData.longitude === '' ? '' : Number(formData.longitude)} 
+              onLocationSelect={(lat, lng) => setFormData({...formData, latitude: lat.toFixed(6), longitude: lng.toFixed(6)})} 
+            />
+          </div>
+          
+        </div>
+      )}
 
       {isLoading ? (
         <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
@@ -63,10 +156,10 @@ export const FarmerCrops = () => {
               </div>
               
               <div className="mt-6 flex gap-3">
-                <button className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
+                <button onClick={() => alert('Kipengele hiki cha kusasisha hali kiko mbioni kukamilika!')} className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
                   Sasisha Hali
                 </button>
-                <button className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
+                <button onClick={() => alert('Ratiba ya kitalu inaandaliwa na Mtaalamu wetu.')} className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
                   Tazama Ratiba
                 </button>
               </div>
