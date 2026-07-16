@@ -128,28 +128,67 @@ async function bootstrap() {
   // 5. Seed Marketplace Listings
   console.log('Seeding marketplace listings...');
   const listingRepository = dataSource.getRepository(Listing);
-  await listingRepository.save([
-    {
+  const listings: Partial<Listing>[] = [];
+  
+  // Helper to get random price around a base
+  const getRandomPrice = (base: number, variance: number) => {
+    return Math.floor(base + (Math.random() * variance * 2 - variance));
+  };
+
+  // Seed Mahindi (Base 450/kg)
+  for (let i = 0; i < 150; i++) {
+    listings.push({
       farmerId: farmer.id,
       cropId: crops[0].id, // Mahindi
-      quantity: 2,
-      unit: 'Tani',
-      pricePerUnit: 900000,
+      quantity: Math.floor(Math.random() * 1000) + 100,
+      unit: 'Kilo',
+      pricePerUnit: getRandomPrice(450, 50),
       currency: 'TZS',
       status: ListingStatus.ACTIVE,
-      photoUrl: 'https://images.unsplash.com/photo-1599579085609-8b835bc4578b?auto=format&fit=crop&q=80&w=200',
-    },
-    {
+    });
+  }
+
+  // Seed Alizeti (Base 1200/kg)
+  for (let i = 0; i < 120; i++) {
+    listings.push({
       farmerId: farmer.id,
       cropId: crops[1].id, // Alizeti
-      quantity: 500,
+      quantity: Math.floor(Math.random() * 500) + 50,
       unit: 'Kilo',
-      pricePerUnit: 1200,
+      pricePerUnit: getRandomPrice(1200, 100),
       currency: 'TZS',
       status: ListingStatus.ACTIVE,
-      photoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAkdJagav-xZ9I7vpOHvlLfCZh8F3PPnIEAui1KD4Xo1Q6wzTbiyAPoFUvMwlTUXqArJKQYLNJG-1xKoPoQSBrfAkdviFpgKET_wxDx66wJXqZzdplnBDjUleOpg4iiR85FAATZIWFoBt-pl7_1mqzVx6cCLKVEbPpIueAPxIsSPd3DA7JkfirMqEDuU41UCH-_W6-Nl0ivgY-LuhFyKRF3BX2Hzo704mchYz7gpLPfuJUBJskRpR7r',
-    }
-  ]);
+    });
+  }
+
+  // Seed Maharagwe (Base 2100/kg)
+  for (let i = 0; i < 100; i++) {
+    listings.push({
+      farmerId: farmer.id,
+      cropId: crops[2].id, // Maharagwe
+      quantity: Math.floor(Math.random() * 300) + 20,
+      unit: 'Kilo',
+      pricePerUnit: getRandomPrice(2100, 150),
+      currency: 'TZS',
+      status: ListingStatus.ACTIVE,
+    });
+  }
+  
+  // Seed Sesame (Base 3500/kg)
+  for (let i = 0; i < 80; i++) {
+    listings.push({
+      farmerId: farmer.id,
+      cropId: crops[3].id, // Sesame
+      quantity: Math.floor(Math.random() * 200) + 10,
+      unit: 'Kilo',
+      pricePerUnit: getRandomPrice(3500, 200),
+      currency: 'TZS',
+      status: ListingStatus.ACTIVE,
+    });
+  }
+
+  // Chunk array to avoid inserting too many at once if needed, but 450 is fine for TypeORM in one go.
+  await listingRepository.save(listings);
 
   // 6. Seed Advisory Requests
   console.log('Seeding advisory requests...');

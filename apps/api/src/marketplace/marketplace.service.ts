@@ -42,6 +42,40 @@ export class MarketplaceService {
     });
   }
 
+  async getPriceSummary(): Promise<any[]> {
+    // We get all active listings to calculate average price per crop
+    const listings = await this.findAllActive();
+    
+    // Group by cropId
+    const summary = {};
+    for (const listing of listings) {
+      if (!listing.crop) continue;
+      const cropName = listing.crop.name;
+      
+      if (!summary[cropName]) {
+        summary[cropName] = { cropName, total: 0, count: 0, lastPrice: 0, trend: 'up' };
+      }
+      
+      summary[cropName].total += Number(listing.pricePerUnit);
+      summary[cropName].count += 1;
+      // Just picking the last one as a mock "last price" to generate a trend
+      summary[cropName].lastPrice = Number(listing.pricePerUnit); 
+    }
+    
+    // Calculate averages and format trend
+    return Object.values(summary).map((data: any) => {
+      const avg = Math.floor(data.total / data.count);
+      // Mock trend for visual appeal: if last price > avg, trend is up, else down
+      const trend = data.lastPrice >= avg ? 'up' : 'down';
+      return {
+        cropName: data.cropName,
+        averagePrice: avg,
+        unit: 'Kilo',
+        trend
+      };
+    });
+  }
+
   async findAllByFarmer(farmerId: string): Promise<Listing[]> {
     return this.listingRepository.find({
       where: { farmerId },

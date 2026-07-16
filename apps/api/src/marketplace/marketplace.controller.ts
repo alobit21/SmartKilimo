@@ -36,6 +36,12 @@ export class MarketplaceController {
     return this.marketplaceService.findAllByFarmer(req.user.id);
   }
 
+  @Get('prices/summary')
+  @Roles(Role.FARMER, Role.BUYER, Role.ADMIN, Role.OFFICER)
+  getPriceSummary() {
+    return this.marketplaceService.getPriceSummary();
+  }
+
   @Get('listings/:id')
   @Roles(Role.FARMER, Role.BUYER, Role.ADMIN)
   findOneListing(@Param('id') id: string) {
