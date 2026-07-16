@@ -317,6 +317,7 @@ export const FarmerCrops = () => {
 };
 
 export const FarmerAdvisory = () => {
+  const { t } = useTranslation();
   const { data: requests, isLoading } = useMyAdvisoryRequests();
   const { data: farms } = useFarms();
   const { data: crops } = useCrops();
