@@ -470,10 +470,11 @@ export const BuyerDashboard = () => {
 };
 
 import { useState } from 'react';
-import { usePendingAdvisories, useRespondAdvisory } from '../features/advisory/useAdvisory';
+import { usePendingAdvisories, useRespondAdvisory, useOfficerStats } from '../features/advisory/useAdvisory';
 
 export const OfficerDashboard = () => {
   const { data: requests, isLoading } = usePendingAdvisories();
+  const { data: stats, isLoading: statsLoading } = useOfficerStats();
   const respondMutation = useRespondAdvisory();
   
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
@@ -495,6 +496,40 @@ export const OfficerDashboard = () => {
         <p className="text-body-lg font-body-lg text-on-surface-variant">Tazama na toa ushauri kwa wakulima kuhusu matatizo ya mazao yao.</p>
       </header>
 
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-xl">
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4 shadow-sm">
+          <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">pending_actions</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Maombi Mapya (Pending)</p>
+            <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.pendingRequests}</p>
+          </div>
+        </div>
+        
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4 shadow-sm">
+          <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">task_alt</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Ushauri Uliotolewa (Answered)</p>
+            <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.answeredRequests}</p>
+          </div>
+        </div>
+
+        <div className="bg-surface border border-outline-variant p-6 rounded-xl flex items-center gap-4 shadow-sm">
+          <div className="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center">
+            <span className="material-symbols-outlined">groups</span>
+          </div>
+          <div>
+            <p className="text-label-sm text-on-surface-variant">Wakulima Waliofikiwa</p>
+            <p className="text-2xl font-bold text-on-surface">{statsLoading ? '...' : stats?.totalFarmersAssisted}</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 className="text-title-lg font-bold mb-4">Foleni ya Maombi (Queue)</h2>
       {isLoading ? (
         <div className="p-8 text-center text-on-surface-variant">Inapakia maombi...</div>
       ) : requests?.length === 0 ? (

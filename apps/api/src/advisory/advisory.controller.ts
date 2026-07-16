@@ -36,6 +36,12 @@ export class AdvisoryController {
     return this.advisoryService.findAllPending();
   }
 
+  @Get('officer-stats')
+  @Roles(Role.OFFICER)
+  getOfficerStats(@Request() req) {
+    return this.advisoryService.getOfficerStats(req.user.id);
+  }
+
   @Patch(':id/respond')
   @Roles(Role.OFFICER)
   respondToRequest(

@@ -56,6 +56,16 @@ export const usePendingAdvisories = () => {
   });
 };
 
+export const useOfficerStats = () => {
+  return useQuery({
+    queryKey: ['officer-stats'],
+    queryFn: async () => {
+      const response = await apiClient.get('/advisory/officer-stats');
+      return response.data;
+    },
+  });
+};
+
 export const useRespondAdvisory = () => {
   const queryClient = useQueryClient();
   

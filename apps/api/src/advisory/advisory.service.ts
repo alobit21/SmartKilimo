@@ -53,6 +53,17 @@ export class AdvisoryService {
     });
   }
 
+  async getOfficerStats(officerId: string) {
+    const totalPending = await this.advisoryRepository.count({ where: { status: RequestStatus.PENDING } });
+    const totalAnswered = await this.advisoryRepository.count({ where: { assignedOfficerId: officerId, status: RequestStatus.ACCEPTED } });
+    
+    return {
+      pendingRequests: totalPending,
+      answeredRequests: totalAnswered,
+      totalFarmersAssisted: totalAnswered 
+    };
+  }
+
   async respondToRequest(id: string, officerId: string, respondDto: RespondAdvisoryDto): Promise<AdvisoryRequest> {
     const request = await this.advisoryRepository.findOne({ where: { id } });
     if (!request) {
