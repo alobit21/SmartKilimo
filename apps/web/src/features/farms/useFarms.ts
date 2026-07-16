@@ -22,6 +22,21 @@ export const useFarms = () => {
   });
 };
 
+export const useFarmWeather = (farmId: string) => {
+  return useQuery({
+    queryKey: ['weather', farmId],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get(`/weather/farm/${farmId}`);
+        return response.data;
+      } catch (err) {
+        return null;
+      }
+    },
+    enabled: !!farmId,
+  });
+};
+
 export const useCreateFarm = () => {
   const queryClient = useQueryClient();
   

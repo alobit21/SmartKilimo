@@ -7,9 +7,15 @@ import { WeatherWidget } from '../components/farmer/WeatherWidget';
 import { MarketPricesWidget } from '../components/farmer/MarketPricesWidget';
 import { CropRecommendationsWidget } from '../components/farmer/CropRecommendationsWidget';
 import { useTranslation } from '../lib/i18n';
+import { useFarms } from '../features/farms/useFarms';
+import { useMyAdvisoryRequests } from '../features/advisory/useAdvisory';
+import { useMyListings } from '../features/marketplace/useMarketplace';
 
 export const FarmerDashboard = () => {
   const { t } = useTranslation();
+  const { data: farms, isLoading: farmsLoading } = useFarms();
+  const { data: advisories, isLoading: advisoriesLoading } = useMyAdvisoryRequests();
+  const { data: listings, isLoading: listingsLoading } = useMyListings();
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -52,45 +58,32 @@ export const FarmerDashboard = () => {
           </Link>
         </div>
         <div className="space-y-4">
-          {/* Shamba 1 */}
-          <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
-            <div className="flex items-center gap-6">
-              <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
-                <span className="material-symbols-outlined">agriculture</span>
-              </div>
-              <div>
-                <p className="font-label-lg text-label-lg text-on-surface">{t('dash.farm1.name')}</p>
-                <p className="font-body-md text-body-md text-on-surface-variant">Hekta 4.5 • Mahindi</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
-                <p className="font-label-lg text-label-lg text-secondary">Kuchipua</p>
-              </div>
-              <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
-            </div>
-          </Link>
-          
-          {/* Shamba 2 */}
-          <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
-            <div className="flex items-center gap-6">
-              <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
-                <span className="material-symbols-outlined">agriculture</span>
-              </div>
-              <div>
-                <p className="font-label-lg text-label-lg text-on-surface">{t('dash.farm2.name')}</p>
-                <p className="font-body-md text-body-md text-on-surface-variant">Hekta 2.0 • Alizeti</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
-                <p className="font-label-lg text-label-lg text-secondary">Matayarisho</p>
-              </div>
-              <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
-            </div>
-          </Link>
+          {farmsLoading ? (
+            <div className="text-center py-4 text-on-surface-variant">Inapakia...</div>
+          ) : farms?.length === 0 ? (
+            <div className="text-center py-4 text-on-surface-variant">Hauna kitalu chochote kilichosajiliwa.</div>
+          ) : (
+            farms?.slice(0, 3).map((farm) => (
+              <Link key={farm.id} to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
+                    <span className="material-symbols-outlined">agriculture</span>
+                  </div>
+                  <div>
+                    <p className="font-label-lg text-label-lg text-on-surface">{farm.name}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">Hekta {farm.sizeHectares}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right hidden sm:block">
+                    <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
+                    <p className="font-label-lg text-label-lg text-secondary">{farm.status || 'Kitalu Kipya'}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
 
@@ -100,22 +93,24 @@ export const FarmerDashboard = () => {
         <div className="bg-surface rounded-xl hairline-border p-6 soft-lift">
           <h3 className="font-title-md text-title-md text-on-surface mb-6">Ushauri wa Kitaalamu</h3>
           <div className="space-y-4">
-            <div className="border-b border-outline-variant pb-4">
-              <div className="flex justify-between items-start mb-1">
-                <p className="font-label-lg text-label-lg text-on-surface">Ugonjwa wa Majani - Mahindi</p>
-                <span className="bg-amber-ochre/10 text-amber-ochre px-2 py-0.5 rounded font-label-sm text-label-sm">PENDING</span>
-              </div>
-              <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1">Nimeona madoa ya kijivu kwenye majani...</p>
-              <p className="font-label-sm text-label-sm text-outline mt-2">Masaa 2 yaliyopita</p>
-            </div>
-            <div className="pb-2">
-              <div className="flex justify-between items-start mb-1">
-                <p className="font-label-lg text-label-lg text-on-surface">Mbolea ya Alizeti</p>
-                <span className="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-label-sm text-label-sm">SOLVED</span>
-              </div>
-              <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1">Unashauri nitumie mbolea gani kabla ya kupanda...</p>
-              <p className="font-label-sm text-label-sm text-outline mt-2">Siku 3 zilizopita</p>
-            </div>
+            {advisoriesLoading ? (
+              <div className="text-center py-4 text-on-surface-variant">Inapakia...</div>
+            ) : advisories?.length === 0 ? (
+              <div className="text-center py-4 text-on-surface-variant">Hakuna maombi ya ushauri.</div>
+            ) : (
+              advisories?.slice(0, 2).map((req) => (
+                <div key={req.id} className="border-b border-outline-variant pb-4 last:border-0 last:pb-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="font-label-lg text-label-lg text-on-surface line-clamp-1">{req.farm?.name || 'Kitalu'}</p>
+                    <span className={`px-2 py-0.5 rounded font-label-sm text-label-sm ${req.status === 'RESOLVED' ? 'bg-secondary-container text-on-secondary-container' : 'bg-amber-ochre/10 text-amber-ochre'}`}>
+                      {req.status === 'RESOLVED' ? 'SOLVED' : 'PENDING'}
+                    </span>
+                  </div>
+                  <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1">{req.description}</p>
+                  <p className="font-label-sm text-label-sm text-outline mt-2">{new Date(req.createdAt).toLocaleDateString()}</p>
+                </div>
+              ))
+            )}
           </div>
           <Link to="/farmer/advisory" className="w-full mt-6 border border-primary text-primary py-2 rounded-lg font-label-lg text-label-lg flex items-center justify-center hover:bg-primary-container/10 transition-all min-h-[48px]">
             Omba Ushauri Mpya
@@ -126,7 +121,9 @@ export const FarmerDashboard = () => {
         <Link to="/farmer/market" className="bg-inverse-surface text-inverse-on-surface rounded-xl p-6 soft-lift flex items-center justify-between hover:opacity-95 transition-opacity cursor-pointer">
           <div>
             <p className="font-label-lg text-label-lg opacity-80">Matangazo ya Soko</p>
-            <h4 className="font-display-md text-display-md font-bold mt-1">12 Active</h4>
+            <h4 className="font-display-md text-display-md font-bold mt-1">
+              {listingsLoading ? '...' : `${listings?.length || 0} Active`}
+            </h4>
             <p className="font-body-md text-body-md opacity-70 mt-1">Bidhaa zako sokoni kwa sasa</p>
           </div>
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">

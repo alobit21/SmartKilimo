@@ -6,6 +6,7 @@ import { useTranslation } from '../lib/i18n';
 
 export const Register: React.FC = () => {
   const { t } = useTranslation();
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +23,7 @@ export const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const payload: any = { password, role };
+      const payload: any = { name, password, role };
       if (phone) payload.phone = phone;
       if (email) payload.email = email;
 
@@ -75,6 +76,24 @@ export const Register: React.FC = () => {
                 <p className="font-label-md text-sm mt-0.5">{success}</p>
               </div>
             )}
+
+            <div>
+              <label htmlFor="name" className="block font-label-lg text-label-lg text-on-surface mb-2">
+                {t('auth.register.name')}
+              </label>
+              <div className="mt-1">
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary transition-colors text-on-surface bg-surface-container-lowest"
+                  placeholder="mfano: Juma Shabani"
+                />
+              </div>
+            </div>
 
             <div>
               <label htmlFor="role" className="block font-label-lg text-label-lg text-on-surface mb-2">

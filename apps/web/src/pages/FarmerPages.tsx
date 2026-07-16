@@ -1,13 +1,67 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { useMyListings, useCreateListing, useUpdateListing, useDeleteListing } from '../features/marketplace/useMarketplace';
-import { useFarms, useCreateFarm, useUpdateFarmStatus } from '../features/farms/useFarms';
+import { useFarms, useCreateFarm, useUpdateFarmStatus, useFarmWeather } from '../features/farms/useFarms';
 import { useCrops } from '../features/crops/useCrops';
 import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryRequest, useDeleteAdvisoryRequest } from '../features/advisory/useAdvisory';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useFarmerDeals, useRespondDeal } from '../features/deals/useDeals';
 import { LocationPickerMap } from '../components/ui/LocationPickerMap';
 import { useTranslation } from '../lib/i18n';
+
+const FarmWeatherWidget = ({ farmId }: { farmId: string }) => {
+  const { data: weather, isLoading } = useFarmWeather(farmId);
+
+  if (isLoading) return <div className="text-xs text-on-surface-variant animate-pulse p-2">Inapakia Hali ya Hewa...</div>;
+  if (!weather) return <div className="text-xs text-on-surface-variant p-2">Hakuna data ya hali ya hewa.</div>;
+
+  return (
+    <div className="bg-surface-container-low p-4 rounded-lg border border-outline-variant/50 mt-2">
+      <h4 className="text-xs font-bold text-on-surface-variant mb-3 flex items-center gap-1">
+        <span className="material-symbols-outlined text-[14px]">partly_cloudy_day</span>
+        Hali ya Hewa (Sasa)
+      </h4>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+            <span className="material-symbols-outlined text-[18px]">thermostat</span>
+          </div>
+          <div>
+            <div className="text-[10px] text-on-surface-variant">Joto</div>
+            <div className="text-xs font-bold">{Number(weather.temperature).toFixed(1)}°C</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+            <span className="material-symbols-outlined text-[18px]">water_drop</span>
+          </div>
+          <div>
+            <div className="text-[10px] text-on-surface-variant">Unyevu</div>
+            <div className="text-xs font-bold">{Number(weather.humidity).toFixed(0)}%</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+            <span className="material-symbols-outlined text-[18px]">air</span>
+          </div>
+          <div>
+            <div className="text-[10px] text-on-surface-variant">Upepo</div>
+            <div className="text-xs font-bold">{Number(weather.windSpeed).toFixed(1)} m/s</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600">
+            <span className="material-symbols-outlined text-[18px]">rainy</span>
+          </div>
+          <div>
+            <div className="text-[10px] text-on-surface-variant">Mvua (1h)</div>
+            <div className="text-xs font-bold">{Number(weather.rainfall).toFixed(1)} mm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const FarmerCrops = () => {
   const { t } = useTranslation();
@@ -238,10 +292,12 @@ export const FarmerCrops = () => {
                 
                 <div className="bg-surface-container-low p-4 rounded-lg flex justify-between items-center border border-outline-variant/50">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-on-surface-variant">water_drop</span>
+                    <span className="material-symbols-outlined text-on-surface-variant">landscape</span>
                     <span className="font-label-sm text-label-sm text-on-surface">{farm.soilNotes || 'Udongo mzuri'}</span>
                   </div>
                 </div>
+                
+                <FarmWeatherWidget farmId={farm.id} />
               </div>
               
               <div className="mt-6 flex gap-3">
@@ -509,6 +565,7 @@ export const FarmerAdvisory = () => {
 };
 
 export const FarmerMarket = () => {
+  const { t } = useTranslation();
   const { data: listings, isLoading } = useMyListings();
   const { data: crops } = useCrops();
   const createListingMutation = useCreateListing();

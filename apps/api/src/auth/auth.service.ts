@@ -17,17 +17,25 @@ export class AuthService {
       throw new BadRequestException('Email or phone must be provided');
     }
 
-    const existingUser = await this.usersService.findByIdentifier(
-      (registerDto.email || registerDto.phone)!,
-    );
-    if (existingUser) {
-      throw new BadRequestException('User with this identifier already exists');
+    if (registerDto.email) {
+      const existingEmail = await this.usersService.findByIdentifier(registerDto.email);
+      if (existingEmail) {
+        throw new BadRequestException('User with this email already exists');
+      }
+    }
+
+    if (registerDto.phone) {
+      const existingPhone = await this.usersService.findByIdentifier(registerDto.phone);
+      if (existingPhone) {
+        throw new BadRequestException('User with this phone number already exists');
+      }
     }
 
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(registerDto.password, salt);
 
     const user = await this.usersService.create({
+      name: registerDto.name,
       email: registerDto.email,
       phone: registerDto.phone,
       passwordHash,
@@ -58,6 +66,7 @@ export class AuthService {
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET }),
       user: {
         id: user.id,
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,

@@ -2,6 +2,10 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'cl
 import { Role } from '@kilimosmart/shared-types';
 
 export class RegisterDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
   @IsOptional()
   @IsEmail()
   email?: string;

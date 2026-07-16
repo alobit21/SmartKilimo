@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Farm } from './entities/farm.entity';
 import { CreateFarmDto } from './dto/create-farm.dto';
+import { WeatherService } from '../weather/weather.service';
 
 @Injectable()
 export class FarmsService {
   constructor(
     @InjectRepository(Farm)
     private farmsRepository: Repository<Farm>,
+    private weatherService: WeatherService,
   ) {}
 
   async create(farmerId: string, createFarmDto: CreateFarmDto): Promise<Farm> {
@@ -16,7 +18,15 @@ export class FarmsService {
       ...createFarmDto,
       farmerId,
     });
-    return this.farmsRepository.save(farm);
+    const savedFarm = await this.farmsRepository.save(farm);
+    
+    // Automatically fetch and capture weather for the new farm
+    // Run this asynchronously without blocking the farm creation response
+    this.weatherService.fetchWeatherForFarm(savedFarm.id, farmerId).catch((err) => {
+      console.error('[FarmsService] Failed to capture initial weather for new farm:', err);
+    });
+
+    return savedFarm;
   }
 
   async findAllByFarmer(farmerId: string): Promise<Farm[]> {
