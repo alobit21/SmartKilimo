@@ -22,7 +22,7 @@ import { CloudinaryModule } from './common/cloudinary/cloudinary.module';
       isGlobal: true,
       envFilePath: '../../.env',
     }),
-    TypeOrmModule.forRoot({ ...dataSourceOptions, synchronize: false }),
+    TypeOrmModule.forRoot({ ...dataSourceOptions, synchronize: true }),
     UsersModule, FarmsModule, CropsModule, RecommendationsModule, MarketplaceModule, DealsModule, AdvisoryModule, WeatherModule, AdminModule, AuthModule, CloudinaryModule
   ],
   controllers: [AppController],

@@ -8,6 +8,8 @@ export interface Farm {
   longitude: number;
   sizeHectares: number;
   soilNotes?: string;
+  status: string;
+  growthProgress: number;
 }
 
 export const useFarms = () => {
@@ -26,6 +28,20 @@ export const useCreateFarm = () => {
   return useMutation({
     mutationFn: async (newFarm: Partial<Farm>) => {
       const response = await apiClient.post('/farms', newFarm);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['farms'] });
+    },
+  });
+};
+
+export const useUpdateFarmStatus = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, status, growthProgress }: { id: string, status: string, growthProgress: number }) => {
+      const response = await apiClient.patch(`/farms/${id}/status`, { status, growthProgress });
       return response.data;
     },
     onSuccess: () => {

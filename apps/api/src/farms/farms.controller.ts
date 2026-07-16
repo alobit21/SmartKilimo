@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { FarmsService } from './farms.service';
 import { CreateFarmDto } from './dto/create-farm.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -27,5 +27,15 @@ export class FarmsController {
   @Roles(Role.FARMER)
   findOne(@Request() req, @Param('id') id: string) {
     return this.farmsService.findOne(id, req.user.id);
+  }
+
+  @Patch(':id/status')
+  @Roles(Role.FARMER)
+  updateStatus(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { status: string; growthProgress: number },
+  ) {
+    return this.farmsService.updateStatus(id, req.user.id, body.status, body.growthProgress);
   }
 }

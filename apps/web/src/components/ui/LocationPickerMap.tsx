@@ -36,7 +36,51 @@ const MapUpdater = ({ center }: { center: L.LatLng }) => {
       map.setView(center, map.getZoom());
     }
   }, [center, map]);
+
   return null;
+};
+
+const AutoLocateControl = ({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) => {
+  const map = useMap();
+  const [locating, setLocating] = useState(false);
+
+  useEffect(() => {
+    map.on('locationfound', (e) => {
+      setLocating(false);
+      map.flyTo(e.latlng, 15);
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    });
+    
+    map.on('locationerror', (e) => {
+      setLocating(false);
+      alert('Imeshindwa kupata eneo lako. Tafadhali hakikisha umeruhusu matumizi ya Location (GPS).');
+    });
+  }, [map, onLocationSelect]);
+
+  const handleLocate = () => {
+    setLocating(true);
+    map.locate();
+  };
+
+  return (
+    <div className="leaflet-top leaflet-right mt-16 mr-2 z-[400] absolute right-2 top-16">
+      <div className="leaflet-control leaflet-bar border-none shadow-md rounded-lg overflow-hidden">
+        <button 
+          type="button"
+          onClick={handleLocate}
+          disabled={locating}
+          className="bg-surface hover:bg-surface-container flex items-center justify-center w-10 h-10 text-primary focus:outline-none transition-colors"
+          title="Tafuta Eneo Langu (Auto-locate)"
+        >
+          {locating ? (
+            <span className="material-symbols-outlined animate-spin">sync</span>
+          ) : (
+            <span className="material-symbols-outlined">my_location</span>
+          )}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ latitude, longitude, onLocationSelect }) => {
@@ -125,6 +169,10 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ latitude, 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapUpdater center={center} />
+        <AutoLocateControl onLocationSelect={(lat, lng) => {
+          onLocationSelect(lat, lng);
+          setSearchResults([]);
+        }} />
         <LocationMarker 
           position={position} 
           onLocationSelect={(lat, lng) => {

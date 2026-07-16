@@ -27,4 +27,10 @@ export class Farm {
 
   @Column({ type: 'text', nullable: true })
   soilNotes: string;
+
+  @Column({ default: 'Kitalu Kipya' })
+  status: string;
+
+  @Column({ default: 0 })
+  growthProgress: number;
 }

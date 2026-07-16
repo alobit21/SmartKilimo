@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { useMyListings, useCreateListing, useUpdateListing, useDeleteListing } from '../features/marketplace/useMarketplace';
-import { useFarms, useCreateFarm } from '../features/farms/useFarms';
+import { useFarms, useCreateFarm, useUpdateFarmStatus } from '../features/farms/useFarms';
 import { useCrops } from '../features/crops/useCrops';
 import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryRequest, useDeleteAdvisoryRequest } from '../features/advisory/useAdvisory';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -11,13 +11,23 @@ import { LocationPickerMap } from '../components/ui/LocationPickerMap';
 export const FarmerCrops = () => {
   const { data: farms, isLoading } = useFarms();
   const createFarmMutation = useCreateFarm();
+  const updateStatusMutation = useUpdateFarmStatus();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     sizeHectares: '',
     latitude: '',
     longitude: '',
     soilNotes: ''
+  });
+
+  const [updateData, setUpdateData] = useState({
+    status: 'Inakua Mzuri',
+    growthProgress: 0,
   });
 
   const handleCreateFarm = async (e: React.FormEvent) => {
@@ -31,6 +41,27 @@ export const FarmerCrops = () => {
     });
     setIsModalOpen(false);
     setFormData({ name: '', sizeHectares: '', latitude: '', longitude: '', soilNotes: '' });
+  };
+
+  const openUpdateModal = (farm: any) => {
+    setSelectedFarmId(farm.id);
+    setUpdateData({
+      status: farm.status || 'Kitalu Kipya',
+      growthProgress: farm.growthProgress || 0,
+    });
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFarmId) return;
+    
+    await updateStatusMutation.mutateAsync({
+      id: selectedFarmId,
+      status: updateData.status,
+      growthProgress: Number(updateData.growthProgress),
+    });
+    setIsUpdateModalOpen(false);
   };
 
   return (
@@ -115,6 +146,56 @@ export const FarmerCrops = () => {
         </div>
       )}
 
+      {/* Update Status Modal */}
+      {isUpdateModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+          <div className="bg-surface rounded-3xl p-6 md:p-8 w-[95vw] md:w-[450px] shadow-2xl">
+            <h2 className="text-title-lg font-bold mb-6 text-on-surface flex items-center justify-between">
+              <span className="flex items-center gap-2 text-primary">
+                <span className="material-symbols-outlined">update</span> Sasisha Hali
+              </span>
+              <button onClick={() => setIsUpdateModalOpen(false)} className="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </h2>
+            <form onSubmit={handleUpdateStatus} className="space-y-4">
+              <div>
+                <label className="block text-label-md font-bold mb-2">Hali ya Sasa</label>
+                <select 
+                  value={updateData.status} 
+                  onChange={e => setUpdateData({...updateData, status: e.target.value})} 
+                  className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary outline-none"
+                >
+                  <option value="Kitalu Kipya">Kitalu Kipya</option>
+                  <option value="Inakua Mzuri">Inakua Mzuri</option>
+                  <option value="Inahitaji Maji">Inahitaji Maji/Mbolea</option>
+                  <option value="Tayari Kuvunwa">Tayari Kuvunwa</option>
+                  <option value="Imeshambuliwa na Wadudu">Imeshambuliwa na Wadudu</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-label-md font-bold mb-2 flex justify-between">
+                  <span>Maendeleo ya Ukuaji</span>
+                  <span className="text-primary">{updateData.growthProgress}%</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="0" max="100" 
+                  value={updateData.growthProgress} 
+                  onChange={e => setUpdateData({...updateData, growthProgress: Number(e.target.value)})} 
+                  className="w-full accent-primary" 
+                />
+              </div>
+              
+              <button type="submit" disabled={updateStatusMutation.isPending} className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold mt-8 text-label-lg hover:shadow-lg disabled:opacity-50">
+                {updateStatusMutation.isPending ? 'Inasasisha...' : 'Hifadhi Mabadiliko'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
       ) : farms?.length === 0 ? (
@@ -133,17 +214,23 @@ export const FarmerCrops = () => {
                     <p className="font-label-sm text-label-sm text-on-surface-variant">Eka {farm.sizeHectares}</p>
                   </div>
                 </div>
-                <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Inakua Mzuri</span>
+                <span className={`px-3 py-1 rounded-full font-label-sm text-label-sm ${
+                  farm.status === 'Tayari Kuvunwa' ? 'bg-primary text-on-primary' : 
+                  farm.status === 'Inahitaji Maji' || farm.status === 'Imeshambuliwa na Wadudu' ? 'bg-error-container text-error' : 
+                  'bg-secondary-container text-on-secondary-container'
+                }`}>
+                  {farm.status || 'Kitalu Kipya'}
+                </span>
               </div>
               
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-1">
                     <span>Maendeleo ya Ukuaji</span>
-                    <span>Siku {index * 15 + 10} / 90</span>
+                    <span>{farm.growthProgress || 0}%</span>
                   </div>
                   <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${(index * 15 + 10) / 90 * 100}%` }}></div>
+                    <div className="h-full bg-primary" style={{ width: `${farm.growthProgress || 0}%` }}></div>
                   </div>
                 </div>
                 
@@ -156,7 +243,7 @@ export const FarmerCrops = () => {
               </div>
               
               <div className="mt-6 flex gap-3">
-                <button onClick={() => alert('Kipengele hiki cha kusasisha hali kiko mbioni kukamilika!')} className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
+                <button onClick={() => openUpdateModal(farm)} className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
                   Sasisha Hali
                 </button>
                 <button onClick={() => alert('Ratiba ya kitalu inaandaliwa na Mtaalamu wetu.')} className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">

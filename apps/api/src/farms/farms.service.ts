@@ -30,4 +30,11 @@ export class FarmsService {
     }
     return farm;
   }
+
+  async updateStatus(id: string, farmerId: string, status: string, growthProgress: number): Promise<Farm> {
+    const farm = await this.findOne(id, farmerId);
+    farm.status = status;
+    farm.growthProgress = growthProgress;
+    return this.farmsRepository.save(farm);
+  }
 }
