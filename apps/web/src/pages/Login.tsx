@@ -154,7 +154,7 @@ export const Login: React.FC = () => {
                 <div className="w-full border-t border-outline-variant" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">{t('auth.login.no_account')}</span>
+                <span className="px-2 bg-background text-on-surface-variant font-label-sm">{t('auth.login.no_account')}</span>
               </div>
             </div>
 

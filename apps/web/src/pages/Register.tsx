@@ -183,13 +183,13 @@ export const Register: React.FC = () => {
             </div>
           </form>
 
-          <div className="mt-8">
+          <div className="mt-8 mb-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-outline-variant" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">{t('auth.register.has_account')}</span>
+                <span className="px-2 bg-background text-on-surface-variant font-label-sm">{t('auth.register.has_account')}</span>
               </div>
             </div>
 
