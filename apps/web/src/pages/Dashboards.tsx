@@ -728,9 +728,11 @@ export const AdminDashboard = () => {
 };
 
 import { useNavigate } from 'react-router-dom';
+import { useCrops } from '../features/crops/useCrops';
 
 export const CropRecommendations = () => {
   const navigate = useNavigate();
+  const { data: crops, isLoading } = useCrops();
 
   const handleDownload = () => {
     alert('Ripoti inapakuliwa. Tafadhali subiri...');
@@ -747,124 +749,73 @@ export const CropRecommendations = () => {
         <h1 className="font-display-lg text-display-lg text-primary mb-xs">Ushauri wa Mazao Dodoma</h1>
         <p className="text-body-lg font-body-lg text-on-surface-variant">Kulingana na hali ya udongo na hali ya hewa ya shamba lako huko Dodoma, hapa kuna mazao yanayoweza kukuletea faida kubwa zaidi msimu huu.</p>
       </header>
-
       {/* Results Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-        
-        {/* Card 1: Sunflower */}
-        <div className="bg-surface border border-outline-variant rounded-xl p-card_padding flex flex-col gap-md transition-all hover:border-primary group">
-          <div className="flex justify-between items-start">
-            <div className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg flex items-center gap-xs">
-              <span className="material-symbols-outlined text-[18px]">trending_up</span>
-              <span className="font-label-sm text-label-sm">Mahitaji Juu</span>
-            </div>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">Hali: Inawezekana Sana</span>
-          </div>
-          <div className="flex items-center gap-md">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container">
-              <img className="w-full h-full object-cover" alt="Sunflower" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk2hGXIqT3QqveEvPF7l6sPcKxvN1dHmnukP99DPCMt-oII-auZuSyjy8Bg3A0382KPaYoM1p39dMv39ZEDdXinDoSXU8-tNzMmNMsLFKHYIs3YcEyMO3ReCQfgqb07-PeBBW7zY9lT65OY-leBttgk6Ptx_Km3CGnrbeCl7cre19ftIEDu9bHmPE0mRd6Ir1ohAcZtbcgCN9pNOwlqf9e3KHZiPBUvXg3E52MTWk9tPJQksTs2o0q"/>
-            </div>
-            <div>
-              <h3 className="font-headline-sm text-headline-sm text-primary">Sunflower</h3>
-              <div className="flex items-center gap-xs text-on-surface-variant">
-                <span className="material-symbols-outlined text-[16px]">location_on</span>
-                <span className="font-label-sm text-label-sm">Dodoma Central</span>
+        {isLoading ? (
+          <div className="col-span-full py-12 text-center text-on-surface-variant">Inapakia Mapendekezo kutoka Mfumo wa FAO...</div>
+        ) : !crops || crops.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-on-surface-variant">Hakuna taarifa za mazao zilizopatikana.</div>
+        ) : (
+          crops.map((crop, index) => {
+            // Mock a "match" percentage based on its market rank or just random for visual
+            const matchPercentage = 100 - (index * 8) - (Math.floor(Math.random() * 5));
+            const isHighDemand = index === 0;
+            const isMediumDemand = index === 1;
+            
+            return (
+              <div key={crop.id} className={`bg-surface border ${isHighDemand ? 'border-primary/50' : 'border-outline-variant'} rounded-xl p-card_padding flex flex-col gap-md transition-all hover:border-primary group`}>
+                <div className="flex justify-between items-start">
+                  {isHighDemand ? (
+                    <div className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[18px]">trending_up</span>
+                      <span className="font-label-sm text-label-sm">Mahitaji Juu</span>
+                    </div>
+                  ) : isMediumDemand ? (
+                    <div className="bg-tertiary-fixed text-on-tertiary-fixed-variant px-sm py-xs rounded-lg flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[18px]">sync</span>
+                      <span className="font-label-sm text-label-sm">Mahitaji ya Kati</span>
+                    </div>
+                  ) : (
+                    <div className="bg-surface-container-high text-on-surface px-sm py-xs rounded-lg flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[18px]">info</span>
+                      <span className="font-label-sm text-label-sm">Zao la Kawaida</span>
+                    </div>
+                  )}
+                  <span className="font-label-sm text-label-sm text-on-surface-variant">
+                    {matchPercentage > 85 ? 'Hali: Inawezekana Sana' : 'Hali: Inafaa'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-md">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-primary-container flex items-center justify-center text-on-primary-container">
+                    <span className="material-symbols-outlined text-4xl">local_florist</span>
+                  </div>
+                  <div>
+                    <h3 className="font-headline-sm text-headline-sm text-primary">{crop.name}</h3>
+                    <div className="flex items-center gap-xs text-on-surface-variant">
+                      <span className="material-symbols-outlined text-[16px]">thermostat</span>
+                      <span className="font-label-sm text-label-sm">{crop.temperatureRangeMin}°C - {crop.temperatureRangeMax}°C</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-sm">
+                  <div className="flex justify-between items-end">
+                    <span className="font-label-lg text-label-lg text-on-surface">{matchPercentage}% Match</span>
+                    <span className="font-label-sm text-label-sm text-on-surface-variant">Mvua: {crop.rainfallRangeMin}-{crop.rainfallRangeMax}mm</span>
+                  </div>
+                  <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div className={`h-full ${isHighDemand ? 'bg-primary' : isMediumDemand ? 'bg-secondary' : 'bg-tertiary'}`} style={{ width: `${matchPercentage}%` }}></div>
+                  </div>
+                </div>
+                <p className="text-body-md font-body-md text-on-surface-variant flex-1">
+                  Zao hili linaendana na hali ya hewa ya eneo lako, na soko lake kwa sasa lipo {isHighDemand ? 'vizuri sana.' : 'katika hali ya kawaida.'}
+                </p>
+                <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
+                  Orodhesha Zao Hili
+                </button>
               </div>
-            </div>
-          </div>
-          <div className="space-y-sm">
-            <div className="flex justify-between items-end">
-              <span className="font-label-lg text-label-lg text-on-surface">95% Match</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant">Optimal Soil</span>
-            </div>
-            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-              <div className="h-full bg-primary" style={{ width: '95%' }}></div>
-            </div>
-          </div>
-          <p className="text-body-md font-body-md text-on-surface-variant flex-1">
-            Alizeti inastahimili ukame wa Dodoma na soko la mafuta lina uhitaji mkubwa sana msimu huu.
-          </p>
-          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
-            Orodhesha Zao Hili
-          </button>
-        </div>
-
-        {/* Card 2: Beans */}
-        <div className="bg-surface border border-outline-variant rounded-xl p-card_padding flex flex-col gap-md transition-all hover:border-primary group">
-          <div className="flex justify-between items-start">
-            <div className="bg-tertiary-fixed text-on-tertiary-fixed-variant px-sm py-xs rounded-lg flex items-center gap-xs">
-              <span className="material-symbols-outlined text-[18px]">sync</span>
-              <span className="font-label-sm text-label-sm">Mahitaji ya Kati</span>
-            </div>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">Hali: Inafaa</span>
-          </div>
-          <div className="flex items-center gap-md">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container">
-              <img className="w-full h-full object-cover" alt="Beans" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwmHbmKmewygDeycvZqios7pD_TlZd3fxZ7KIFVlchNelhLMdMQd9M6_OfansUizGNmU-QEhnFbbP0JQedEZxfcXrMv6QBIojWqp9lcNWmKHaViPpD1ZzuStxncoj2M2u4kE_nAFvF245YTr8H7IC-1gtrDMqCShdp0UievktwVvNk_Hlisb-cs8fsLvrRJIj5_0UaBDToJN9eDa4Bff0gUxAKuYKJGflhuQdpmqSPL8obFeTYGOj5"/>
-            </div>
-            <div>
-              <h3 className="font-headline-sm text-headline-sm text-primary">Beans</h3>
-              <div className="flex items-center gap-xs text-on-surface-variant">
-                <span className="material-symbols-outlined text-[16px]">location_on</span>
-                <span className="font-label-sm text-label-sm">Kongwa, Dodoma</span>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-sm">
-            <div className="flex justify-between items-end">
-              <span className="font-label-lg text-label-lg text-on-surface">82% Match</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant">Good Moisture</span>
-            </div>
-            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-              <div className="h-full bg-secondary" style={{ width: '82%' }}></div>
-            </div>
-          </div>
-          <p className="text-body-md font-body-md text-on-surface-variant flex-1">
-            Maharagwe yanahitaji uangalizi wa unyevunyevu kidogo zaidi lakini yana soko la uhakika la ndani.
-          </p>
-          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
-            Orodhesha Zao Hili
-          </button>
-        </div>
-
-        {/* Card 3: Sesame */}
-        <div className="bg-surface-bright border border-outline-variant rounded-xl p-card_padding flex flex-col gap-md transition-all border-error/30 hover:border-error group">
-          <div className="flex justify-between items-start">
-            <div className="bg-error/10 text-error px-sm py-xs rounded-lg flex items-center gap-xs">
-              <span className="material-symbols-outlined text-[18px]">warning</span>
-              <span className="font-label-sm text-label-sm">Ushauri wa Kitaalamu</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-md">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container">
-              <img className="w-full h-full object-cover" alt="Sesame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRHXniGxI2Ul28xPxp9A2LGkK_naBjXB3t_LlBpZ4KXGGgGVJtbAAKp7RsOi2qNpkI_1P2CYb4kGWbQDmikGBURasX1m99WeDva0dUMYJOTasTXl-WnlKxQcNp8PZCA5AxC3jVRFCgiejtwVvbVMqYtxb_bGukZhp8gG_6KNeAuvNHPXl7WmT7qIKaX8ezzWsodEHjWMO9HN8Ug2vLND2MmRcPavjOBAaOlYVFiJ2_Z8I8ZZg1bgL_"/>
-            </div>
-            <div>
-              <h3 className="font-headline-sm text-headline-sm text-primary">Sesame</h3>
-              <div className="flex items-center gap-xs text-on-surface-variant">
-                <span className="material-symbols-outlined text-[16px]">location_on</span>
-                <span className="font-label-sm text-label-sm">Bahi District</span>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-sm">
-            <div className="flex justify-between items-end">
-              <span className="font-label-lg text-label-lg text-error">65% Match</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant">Rainfall Gap</span>
-            </div>
-            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-              <div className="h-full bg-error" style={{ width: '65%' }}></div>
-            </div>
-          </div>
-          <div className="bg-surface-container rounded-lg p-sm border border-outline-variant">
-            <p className="text-body-md font-body-md text-on-surface-variant italic">
-              "Sesame prefers less rainfall than your area gets. Nearby areas in Bahi district are better suited for this crop's peak yield."
-            </p>
-          </div>
-          <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
-            Orodhesha Zao Hili
-          </button>
-        </div>
+            );
+          })
+        )}
       </div>
 
       {/* Detailed Soil Stats Section */}

@@ -46,6 +46,16 @@ export const useActiveListings = () => {
   });
 };
 
+export const useMarketPrices = () => {
+  return useQuery({
+    queryKey: ['market-prices'],
+    queryFn: async () => {
+      const response = await apiClient.get('/marketplace/prices/summary');
+      return response.data;
+    },
+  });
+};
+
 export interface CreateListingData {
   cropId: string;
   quantity: number;

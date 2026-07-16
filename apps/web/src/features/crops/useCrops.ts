@@ -5,6 +5,11 @@ export interface Crop {
   id: string;
   name: string;
   faoCropCode?: string;
+  temperatureRangeMin?: number;
+  temperatureRangeMax?: number;
+  rainfallRangeMin?: number;
+  rainfallRangeMax?: number;
+  marketRank?: number;
 }
 
 export const useCrops = () => {
