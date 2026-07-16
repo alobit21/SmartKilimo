@@ -63,6 +63,66 @@ const FarmWeatherWidget = ({ farmId }: { farmId: string }) => {
   );
 };
 
+const FarmScheduleModal = ({ farm, onClose }: { farm: any, onClose: () => void }) => {
+  const progress = farm.growthProgress || 0;
+  
+  const stages = [
+    { name: 'Maandalizi ya Shamba', icon: 'landscape', threshold: 0, desc: 'Kusafisha na kulima shamba.' },
+    { name: 'Kupanda', icon: 'psychiatry', threshold: 20, desc: 'Kupanda mbegu na kuweka mbolea ya kupandia.' },
+    { name: 'Kupalilia & Kukuzia', icon: 'eco', threshold: 40, desc: 'Kutoa magugu na kuweka mbolea ya kukuzia.' },
+    { name: 'Kudhibiti Wadudu', icon: 'pest_control', threshold: 60, desc: 'Kupuliza dawa kuzuia wadudu na magonjwa.' },
+    { name: 'Kuvuna', icon: 'agriculture', threshold: 90, desc: 'Kuvuna mazao na kuhifadhi ghalani.' },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+      <div className="bg-surface rounded-3xl p-6 w-[95vw] md:w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span className="material-symbols-outlined">close</span>
+        </button>
+        
+        <div className="mb-6 pr-8">
+          <h2 className="text-title-lg font-bold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">calendar_month</span> 
+            Ratiba ya Kitalu
+          </h2>
+          <p className="text-body-md text-on-surface-variant mt-1">{farm.name}</p>
+        </div>
+        
+        <div className="relative border-l-2 border-outline-variant/50 ml-6 space-y-8 pb-4">
+          {stages.map((stage, i) => {
+            const isCompleted = progress >= stage.threshold;
+            const isCurrent = progress >= stage.threshold && (i === stages.length - 1 || progress < stages[i + 1].threshold);
+            
+            return (
+              <div key={i} className="relative pl-8">
+                {/* Timeline dot */}
+                <div className={`absolute -left-[21px] w-10 h-10 rounded-full flex items-center justify-center border-4 border-surface ${isCurrent ? 'bg-primary text-on-primary ring-4 ring-primary/20' : isCompleted ? 'bg-primary/20 text-primary' : 'bg-surface-container-highest text-on-surface-variant'}`}>
+                  <span className="material-symbols-outlined text-[20px]">{isCompleted && !isCurrent ? 'check' : stage.icon}</span>
+                </div>
+                
+                <div className={`p-4 rounded-xl border ${isCurrent ? 'border-primary bg-primary/5' : 'border-outline-variant/30 bg-surface-container-lowest'}`}>
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className={`font-title-md ${isCurrent ? 'text-primary font-bold' : 'text-on-surface'}`}>{stage.name}</h3>
+                    {isCurrent && <span className="text-[10px] uppercase font-bold tracking-wider bg-primary text-on-primary px-2 py-0.5 rounded-full">Sasa</span>}
+                  </div>
+                  <p className="text-body-sm text-on-surface-variant">{stage.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="mt-8 pt-4 border-t border-outline-variant">
+          <button onClick={onClose} className="w-full py-3 bg-primary-container text-on-primary-container font-bold rounded-xl hover:opacity-90 transition-opacity">
+            Funga Ratiba
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FarmerCrops = () => {
   const { t } = useTranslation();
   const { data: farms, isLoading } = useFarms();
@@ -72,6 +132,7 @@ export const FarmerCrops = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null);
+  const [scheduleFarm, setScheduleFarm] = useState<any | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -304,13 +365,17 @@ export const FarmerCrops = () => {
                 <button onClick={() => openUpdateModal(farm)} className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
                   Sasisha Hali
                 </button>
-                <button onClick={() => alert('Ratiba ya kitalu inaandaliwa na Mtaalamu wetu.')} className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
+                <button onClick={() => setScheduleFarm(farm)} className="flex-1 border border-outline-variant text-on-surface py-2 rounded-lg font-label-sm hover:bg-surface-container transition-colors">
                   Tazama Ratiba
                 </button>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {scheduleFarm && (
+        <FarmScheduleModal farm={scheduleFarm} onClose={() => setScheduleFarm(null)} />
       )}
     </div>
   );
