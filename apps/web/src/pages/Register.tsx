@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api-client';
 import { Role } from '@kilimosmart/shared-types';
+import { useTranslation } from '../lib/i18n';
 
 export const Register: React.FC = () => {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +33,7 @@ export const Register: React.FC = () => {
       }
 
       await apiClient.post('/auth/register', payload);
-      setSuccess('Usajili umekamilika! Tunakupeleka kwenye ukurasa wa kuingia...');
+      setSuccess(t('auth.register.success') || 'Usajili umekamilika! Tunakupeleka kwenye ukurasa wa kuingia...');
       
       setTimeout(() => {
         navigate('/login');
@@ -50,10 +52,10 @@ export const Register: React.FC = () => {
           KilimoBora
         </Link>
         <h2 className="text-center font-display-md text-[28px] font-bold text-on-surface">
-          Fungua Akaunti
+          {t('auth.register.title')}
         </h2>
         <p className="mt-2 text-center text-on-surface-variant font-body-md">
-          Jiunge na mtandao wetu wa kilimo kidijitali
+          {t('auth.register.desc')}
         </p>
       </div>
 
@@ -76,7 +78,7 @@ export const Register: React.FC = () => {
 
             <div>
               <label htmlFor="role" className="block font-label-lg text-label-lg text-on-surface mb-2">
-                Aina ya Mtumiaji
+                {t('auth.register.role')}
               </label>
               <div className="mt-1">
                 <select
@@ -86,15 +88,15 @@ export const Register: React.FC = () => {
                   onChange={(e) => setRole(e.target.value as Role)}
                   className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm focus:outline-none focus:ring-primary focus:border-primary transition-colors text-on-surface bg-surface-container-lowest"
                 >
-                  <option value={Role.FARMER}>Mkulima (Farmer)</option>
-                  <option value={Role.BUYER}>Mnunuzi (Buyer)</option>
+                  <option value={Role.FARMER}>{t('auth.register.role.farmer')}</option>
+                  <option value={Role.BUYER}>{t('auth.register.role.buyer')}</option>
                 </select>
               </div>
             </div>
 
             <div>
               <label htmlFor="phone" className="block font-label-lg text-label-lg text-on-surface mb-2">
-                Namba ya Simu
+                {t('auth.login.identifier')}
               </label>
               <div className="mt-1">
                 <input
@@ -128,7 +130,7 @@ export const Register: React.FC = () => {
 
             <div>
               <label htmlFor="password" className="block font-label-lg text-label-lg text-on-surface mb-2">
-                Nenosiri
+                {t('auth.login.password')}
               </label>
               <div className="mt-1">
                 <input
@@ -153,10 +155,10 @@ export const Register: React.FC = () => {
                 {loading ? (
                   <>
                     <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-                    Inasajili...
+                    {t('action.loading')}
                   </>
                 ) : (
-                  'Jisajili'
+                  t('auth.register.button')
                 )}
               </button>
             </div>
@@ -168,7 +170,7 @@ export const Register: React.FC = () => {
                 <div className="w-full border-t border-outline-variant" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">Tayari una akaunti?</span>
+                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">{t('auth.register.has_account')}</span>
               </div>
             </div>
 
@@ -177,7 +179,7 @@ export const Register: React.FC = () => {
                 to="/login"
                 className="w-full flex justify-center py-3 px-4 border border-outline-variant rounded-xl shadow-sm font-label-lg text-on-surface bg-surface hover:bg-surface-container transition-colors"
               >
-                Ingia sasa
+                {t('auth.register.login')}
               </Link>
             </div>
           </div>

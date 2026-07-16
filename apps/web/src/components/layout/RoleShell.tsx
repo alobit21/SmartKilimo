@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth-store';
+import { useTranslation } from '../../lib/i18n';
 
 export const RoleShell: React.FC = () => {
   const { user, logout } = useAuthStore();
+  const { t, language, toggleLanguage } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [currentTime, setCurrentTime] = useState('');
@@ -35,7 +37,7 @@ export const RoleShell: React.FC = () => {
           {/* Active: Dashboard */}
           <Link to={`/${role.toLowerCase()}`} className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('dashboard') || location.pathname === `/${role.toLowerCase()}` ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
             <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('dashboard') || location.pathname === `/${role.toLowerCase()}` ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
-            <span className="font-title-md text-title-md">Dashboard</span>
+            <span className="font-title-md text-title-md">{t('nav.dashboard')}</span>
           </Link>
           
           {role === 'FARMER' && (
@@ -45,21 +47,21 @@ export const RoleShell: React.FC = () => {
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('crops') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('crops') ? "'FILL' 1" : "'FILL' 0" }}>agriculture</span>
-                <span className="font-title-md text-title-md">Mazao</span>
+                <span className="font-title-md text-title-md">{t('nav.crops')}</span>
               </Link>
               <Link 
                 to="/farmer/market" 
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('market') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('market') ? "'FILL' 1" : "'FILL' 0" }}>storefront</span>
-                <span className="font-title-md text-title-md">Soko</span>
+                <span className="font-title-md text-title-md">{t('nav.market')}</span>
               </Link>
               <Link 
                 to="/farmer/advisory" 
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('advisory') ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.includes('advisory') ? "'FILL' 1" : "'FILL' 0" }}>support_agent</span>
-                <span className="font-title-md text-title-md">Wataalamu</span>
+                <span className="font-title-md text-title-md">{t('nav.advisory')}</span>
               </Link>
               <Link 
                 to="/farmer/contracts" 
@@ -79,7 +81,7 @@ export const RoleShell: React.FC = () => {
           <div className="space-y-1">
             <button onClick={handleLogout} className="w-full flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-error-container hover:text-error rounded-xl transition-all text-label-lg">
               <span className="material-symbols-outlined">logout</span>
-              <span>Ondoka</span>
+              <span>{t('nav.logout')}</span>
             </button>
           </div>
         </div>
@@ -100,6 +102,10 @@ export const RoleShell: React.FC = () => {
               <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime} • Morogoro</p>
             </div>
             <div className="flex items-center gap-4">
+              <button onClick={toggleLanguage} className="bg-surface-container hover:bg-surface-container-high transition-colors px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium">
+                <span className="material-symbols-outlined text-[18px]">translate</span>
+                {language === 'sw' ? 'EN' : 'SW'}
+              </button>
               <button className="relative p-2 rounded-full hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined">notifications</span>
                 <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>

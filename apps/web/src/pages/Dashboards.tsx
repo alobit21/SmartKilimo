@@ -6,8 +6,11 @@ import { FarmerStats } from '../components/farmer/FarmerStats';
 import { WeatherWidget } from '../components/farmer/WeatherWidget';
 import { MarketPricesWidget } from '../components/farmer/MarketPricesWidget';
 import { CropRecommendationsWidget } from '../components/farmer/CropRecommendationsWidget';
+import { useTranslation } from '../lib/i18n';
 
 export const FarmerDashboard = () => {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
       {/* Weather Snapshot Card (Spans 4 columns) */}
@@ -28,10 +31,10 @@ export const FarmerDashboard = () => {
         <div className="flex-1 z-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="bg-primary-container text-white px-3 py-1 rounded-full font-label-sm text-label-sm">Pendekezo Jipya</span>
-            <span className="text-on-secondary-container font-label-lg text-label-lg">Mahindi - Soko Kubwa</span>
+            <span className="text-on-secondary-container font-label-lg text-label-lg">{t('dash.rec.badge')}</span>
           </div>
           <h3 className="font-headline-sm text-headline-sm text-primary mb-2">Panda Mahindi msimu huu</h3>
-          <p className="font-body-md text-body-md text-on-surface-variant mb-6">Takwimu zinaonyesha uhitaji mkubwa wa mahindi mwezi Agosti katika soko la Dodoma. Inashauriwa kupanda mbegu za aina ya SC419.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-6">{t('dash.rec.desc')}</p>
           <Link to="/farmer/recommendations" className="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all min-h-[48px] w-fit">
             Soma Maelezo Zaidi
             <span className="material-symbols-outlined">arrow_forward</span>
@@ -42,10 +45,10 @@ export const FarmerDashboard = () => {
       {/* My Farms (List View) - Spans 7 columns */}
       <div className="md:col-span-7 bg-surface rounded-xl hairline-border p-6 soft-lift">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-title-md text-title-md text-on-surface">Mashamba Yangu</h3>
+          <h3 className="font-title-md text-title-md text-on-surface">{t('farmer.farms.title')}</h3>
           <Link to="/farmer/crops" className="text-primary font-label-lg text-label-lg flex items-center gap-1 hover:opacity-80">
             <span className="material-symbols-outlined">add</span>
-            Ongeza
+            {t('farmer.farms.add')}
           </Link>
         </div>
         <div className="space-y-4">
@@ -56,7 +59,7 @@ export const FarmerDashboard = () => {
                 <span className="material-symbols-outlined">agriculture</span>
               </div>
               <div>
-                <p className="font-label-lg text-label-lg text-on-surface">Shamba la Morogoro Kusini</p>
+                <p className="font-label-lg text-label-lg text-on-surface">{t('dash.farm1.name')}</p>
                 <p className="font-body-md text-body-md text-on-surface-variant">Hekta 4.5 • Mahindi</p>
               </div>
             </div>
@@ -76,7 +79,7 @@ export const FarmerDashboard = () => {
                 <span className="material-symbols-outlined">agriculture</span>
               </div>
               <div>
-                <p className="font-label-lg text-label-lg text-on-surface">Shamba la Mvomero</p>
+                <p className="font-label-lg text-label-lg text-on-surface">{t('dash.farm2.name')}</p>
                 <p className="font-body-md text-body-md text-on-surface-variant">Hekta 2.0 • Alizeti</p>
               </div>
             </div>
@@ -333,7 +336,7 @@ export const BuyerDashboard = () => {
       <section className="flex-1">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
           <div>
-            <h1 className="font-display-md text-display-md font-bold text-on-surface">Viwango vya Soko</h1>
+            <h1 className="font-display-md text-display-md font-bold text-on-surface">{t('dash.market.title')}</h1>
             <p className="text-on-surface-variant font-body-md">Bidhaa {filteredListings.length} zilizopatikana nchini Tanzania</p>
           </div>
           <div className="flex items-center gap-sm">
@@ -356,7 +359,7 @@ export const BuyerDashboard = () => {
             <div className="col-span-full p-8 text-center text-on-surface-variant">Inapakia bidhaa...</div>
           ) : filteredListings.length === 0 ? (
             <div className="col-span-full p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">
-              Hakuna bidhaa sokoni kwa sasa inayokidhi vichujio vyako.
+              {t('dash.market.empty')}
             </div>
           ) : (
             filteredListings.map(listing => (
@@ -733,21 +736,22 @@ import { useCrops } from '../features/crops/useCrops';
 export const CropRecommendations = () => {
   const navigate = useNavigate();
   const { data: crops, isLoading } = useCrops();
+  const { t } = useTranslation();
 
   const handleDownload = () => {
-    alert('Ripoti inapakuliwa. Tafadhali subiri...');
+    alert(t('dash.report.dl'));
   };
 
   return (
     <div className="flex-1 animate-in fade-in duration-500">
       <header className="mb-xl">
         <nav className="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm mb-sm">
-          <span>Ushauri</span>
+          <span>{t('nav.advisory')}</span>
           <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-          <span className="text-primary font-bold">Mapendekezo ya Mazao</span>
+          <span className="text-primary font-bold">{t('crop.rec.title')}</span>
         </nav>
-        <h1 className="font-display-lg text-display-lg text-primary mb-xs">Ushauri wa Mazao Dodoma</h1>
-        <p className="text-body-lg font-body-lg text-on-surface-variant">Kulingana na hali ya udongo na hali ya hewa ya shamba lako huko Dodoma, hapa kuna mazao yanayoweza kukuletea faida kubwa zaidi msimu huu.</p>
+        <h1 className="font-display-lg text-display-lg text-primary mb-xs">{t('crop.rec.title')}</h1>
+        <p className="text-body-lg font-body-lg text-on-surface-variant">{t('crop.rec.desc')}</p>
       </header>
       {/* Results Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
@@ -807,7 +811,7 @@ export const CropRecommendations = () => {
                   </div>
                 </div>
                 <p className="text-body-md font-body-md text-on-surface-variant flex-1">
-                  Zao hili linaendana na hali ya hewa ya eneo lako, na soko lake kwa sasa lipo {isHighDemand ? 'vizuri sana.' : 'katika hali ya kawaida.'}
+                  {isHighDemand ? t('dash.crop.match_high') : t('dash.crop.match_med')}
                 </p>
                 <button onClick={() => navigate('/farmer/market')} className="w-full min-h-[48px] bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container transition-colors active:opacity-80">
                   Orodhesha Zao Hili

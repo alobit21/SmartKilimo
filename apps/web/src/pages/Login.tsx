@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../lib/api-client';
 import { useAuthStore } from '../stores/auth-store';
+import { useTranslation } from '../lib/i18n';
 
 export const Login: React.FC = () => {
+  const { t } = useTranslation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export const Login: React.FC = () => {
       const { user, accessToken } = response.data;
       
       login(user, accessToken);
-      setSuccess('Umeingia kikamilifu! Tunakupeleka kwenye ukurasa wako...');
+      setSuccess(t('auth.login.success') || 'Umeingia kikamilifu! Tunakupeleka kwenye ukurasa wako...');
       
       // Delay navigation slightly so user sees the success message
       setTimeout(() => {
@@ -48,10 +50,10 @@ export const Login: React.FC = () => {
           KilimoBora
         </Link>
         <h2 className="text-center font-display-md text-[28px] font-bold text-on-surface">
-          Karibu tena
+          {t('auth.login.title')}
         </h2>
         <p className="mt-2 text-center text-on-surface-variant font-body-md">
-          Ingia kwenye akaunti yako kuendelea
+          {t('auth.login.desc')}
         </p>
       </div>
 
@@ -74,7 +76,7 @@ export const Login: React.FC = () => {
             
             <div>
               <label htmlFor="identifier" className="block font-label-lg text-label-lg text-on-surface mb-2">
-                Barua pepe au Namba ya Simu
+                {t('auth.login.identifier')}
               </label>
               <div className="mt-1">
                 <input
@@ -92,7 +94,7 @@ export const Login: React.FC = () => {
 
             <div>
               <label htmlFor="password" className="block font-label-lg text-label-lg text-on-surface mb-2">
-                Nenosiri
+                {t('auth.login.password')}
               </label>
               <div className="mt-1">
                 <input
@@ -137,10 +139,10 @@ export const Login: React.FC = () => {
                 {loading ? (
                   <>
                     <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-                    Inaingia...
+                    {t('action.loading')}
                   </>
                 ) : (
-                  'Ingia'
+                  t('auth.login.button')
                 )}
               </button>
             </div>
@@ -152,7 +154,7 @@ export const Login: React.FC = () => {
                 <div className="w-full border-t border-outline-variant" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">Huna akaunti?</span>
+                <span className="px-2 bg-surface text-on-surface-variant font-label-sm">{t('auth.login.no_account')}</span>
               </div>
             </div>
 
@@ -161,7 +163,7 @@ export const Login: React.FC = () => {
                 to="/register"
                 className="w-full flex justify-center py-3 px-4 border border-outline-variant rounded-xl shadow-sm font-label-lg text-on-surface bg-surface hover:bg-surface-container transition-colors"
               >
-                Jisajili sasa
+                {t('auth.login.register')}
               </Link>
             </div>
           </div>

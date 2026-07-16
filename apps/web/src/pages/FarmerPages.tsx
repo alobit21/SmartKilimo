@@ -7,8 +7,10 @@ import { useMyAdvisoryRequests, useCreateAdvisoryRequest, useUpdateAdvisoryReque
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useFarmerDeals, useRespondDeal } from '../features/deals/useDeals';
 import { LocationPickerMap } from '../components/ui/LocationPickerMap';
+import { useTranslation } from '../lib/i18n';
 
 export const FarmerCrops = () => {
+  const { t } = useTranslation();
   const { data: farms, isLoading } = useFarms();
   const createFarmMutation = useCreateFarm();
   const updateStatusMutation = useUpdateFarmStatus();
@@ -68,14 +70,14 @@ export const FarmerCrops = () => {
     <div className="flex-1 animate-in fade-in duration-500 relative">
       <header className="mb-xl flex justify-between items-end">
         <div>
-          <h1 className="font-display-lg text-display-lg text-primary mb-xs">Usimamizi wa Mazao</h1>
-          <p className="text-body-lg font-body-lg text-on-surface-variant">Fuatilia ukuaji wa mazao yako, ratiba za msimu, na matarajio ya mavuno.</p>
+          <h1 className="font-display-lg text-display-lg text-primary mb-xs">{t('farmer.crops.title')}</h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant">{t('farmer.crops.desc')}</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <span className="material-symbols-outlined">add</span> Sajili Kitalu Kipya
+          <span className="material-symbols-outlined">add</span> {t('farmer.crops.add')}
         </button>
       </header>
 
@@ -87,7 +89,7 @@ export const FarmerCrops = () => {
           <div className="w-full md:w-[450px] lg:w-[500px] bg-surface h-full flex flex-col shadow-2xl z-10 shrink-0">
             <div className="p-6 border-b border-outline-variant flex justify-between items-center bg-surface sticky top-0 z-20">
               <h2 className="text-title-lg font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">landscape</span> Sajili Kitalu Kipya
+                <span className="material-symbols-outlined text-primary">landscape</span> {t('farmer.crops.add')}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
                 <span className="material-symbols-outlined">close</span>
@@ -97,18 +99,18 @@ export const FarmerCrops = () => {
             <div className="flex-1 overflow-y-auto p-6 md:p-8">
               <form onSubmit={handleCreateFarm} className="space-y-6">
                 <div>
-                  <label className="block text-label-md font-bold mb-2">Jina la Kitalu/Shamba</label>
+                  <label className="block text-label-md font-bold mb-2">{t('farmer.crops.name')}</label>
                   <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all" placeholder="Mf. Shamba la Morogoro" />
                 </div>
                 
                 <div>
-                  <label className="block text-label-md font-bold mb-2">Ukubwa (Hekari)</label>
+                  <label className="block text-label-md font-bold mb-2">{t('farmer.crops.size')}</label>
                   <input required type="number" step="0.1" min="0.1" value={formData.sizeHectares} onChange={e => setFormData({...formData, sizeHectares: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all" placeholder="Mf. 2.5" />
                 </div>
                 
                 <div className="p-4 bg-surface-container rounded-xl border border-outline-variant/50 space-y-4">
                   <p className="font-label-md text-primary flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px]">location_on</span> Eneo la Kitalu (Tafuta kwenye ramani)
+                    <span className="material-symbols-outlined text-[20px]">location_on</span> {t('farmer.crops.location')}
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -123,12 +125,12 @@ export const FarmerCrops = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-label-md font-bold mb-2">Aina ya Udongo (Hiari)</label>
+                  <label className="block text-label-md font-bold mb-2">{t('farmer.crops.soil')}</label>
                   <textarea rows={3} value={formData.soilNotes} onChange={e => setFormData({...formData, soilNotes: e.target.value})} className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary focus:ring-2 outline-none transition-all resize-none" placeholder="Mf. Udongo Tifu Tifu unaohifadhi maji..." />
                 </div>
                 
                 <button type="submit" disabled={createFarmMutation.isPending} className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold mt-8 text-label-lg hover:shadow-lg disabled:opacity-50 transition-all flex justify-center items-center gap-2 active:scale-[0.98]">
-                  {createFarmMutation.isPending ? <><span className="material-symbols-outlined animate-spin">sync</span> Inasajili...</> : 'Hifadhi Kitalu Kipya'}
+                  {createFarmMutation.isPending ? <><span className="material-symbols-outlined animate-spin">sync</span> {t('action.loading')}</> : t('farmer.crops.save')}
                 </button>
               </form>
             </div>
@@ -152,7 +154,7 @@ export const FarmerCrops = () => {
           <div className="bg-surface rounded-3xl p-6 md:p-8 w-[95vw] md:w-[450px] shadow-2xl">
             <h2 className="text-title-lg font-bold mb-6 text-on-surface flex items-center justify-between">
               <span className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined">update</span> Sasisha Hali
+                <span className="material-symbols-outlined">update</span> {t('farmer.crops.update_status')}
               </span>
               <button onClick={() => setIsUpdateModalOpen(false)} className="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
                 <span className="material-symbols-outlined">close</span>
@@ -160,23 +162,23 @@ export const FarmerCrops = () => {
             </h2>
             <form onSubmit={handleUpdateStatus} className="space-y-4">
               <div>
-                <label className="block text-label-md font-bold mb-2">Hali ya Sasa</label>
+                <label className="block text-label-md font-bold mb-2">{t('farmer.crops.status.current')}</label>
                 <select 
                   value={updateData.status} 
                   onChange={e => setUpdateData({...updateData, status: e.target.value})} 
                   className="w-full p-4 border border-outline-variant rounded-xl bg-surface-container-lowest focus:border-primary outline-none"
                 >
-                  <option value="Kitalu Kipya">Kitalu Kipya</option>
-                  <option value="Inakua Mzuri">Inakua Mzuri</option>
-                  <option value="Inahitaji Maji">Inahitaji Maji/Mbolea</option>
-                  <option value="Tayari Kuvunwa">Tayari Kuvunwa</option>
-                  <option value="Imeshambuliwa na Wadudu">Imeshambuliwa na Wadudu</option>
+                  <option value="Kitalu Kipya">{t('farmer.crops.status.new')}</option>
+                  <option value="Inakua Mzuri">{t('farmer.crops.status.growing')}</option>
+                  <option value="Inahitaji Maji">{t('farmer.crops.status.water')}</option>
+                  <option value="Tayari Kuvunwa">{t('farmer.crops.status.ready')}</option>
+                  <option value="Imeshambuliwa na Wadudu">{t('farmer.crops.status.pest')}</option>
                 </select>
               </div>
               
               <div>
                 <label className="block text-label-md font-bold mb-2 flex justify-between">
-                  <span>Maendeleo ya Ukuaji</span>
+                  <span>{t('farmer.crops.progress')}</span>
                   <span className="text-primary">{updateData.growthProgress}%</span>
                 </label>
                 <input 
@@ -189,7 +191,7 @@ export const FarmerCrops = () => {
               </div>
               
               <button type="submit" disabled={updateStatusMutation.isPending} className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold mt-8 text-label-lg hover:shadow-lg disabled:opacity-50">
-                {updateStatusMutation.isPending ? 'Inasasisha...' : 'Hifadhi Mabadiliko'}
+                {updateStatusMutation.isPending ? t('farmer.crops.updating') : t('farmer.crops.update_status')}
               </button>
             </form>
           </div>
@@ -326,14 +328,14 @@ export const FarmerAdvisory = () => {
     <div className="flex-1 animate-in fade-in duration-500">
       <header className="mb-xl flex justify-between items-end">
         <div>
-          <h1 className="font-display-lg text-display-lg text-primary mb-xs">Wataalamu (Advisory)</h1>
-          <p className="text-body-lg font-body-lg text-on-surface-variant">Uliza maswali na pata ushauri kutoka kwa maafisa ugani.</p>
+          <h1 className="font-display-lg text-display-lg text-primary mb-xs">{t('farmer.advisory.title')}</h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant">{t('farmer.advisory.desc')}</p>
         </div>
         <button 
           onClick={handleOpenNew}
           className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <span className="material-symbols-outlined">add_a_photo</span> Omba Ushauri Mpya
+          <span className="material-symbols-outlined">add_a_photo</span> {t('farmer.advisory.ask')}
         </button>
       </header>
 
@@ -586,14 +588,14 @@ export const FarmerMarket = () => {
     <div className="flex-1 animate-in fade-in duration-500 relative">
       <header className="mb-xl flex justify-between items-end">
         <div>
-          <h1 className="font-display-lg text-display-lg text-primary mb-xs">Soko Langu</h1>
-          <p className="text-body-lg font-body-lg text-on-surface-variant">Dhibiti bidhaa zako unazouza na ofa kutoka kwa wanunuzi.</p>
+          <h1 className="font-display-lg text-display-lg text-primary mb-xs">{t('farmer.market.title')}</h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant">{t('farmer.market.desc')}</p>
         </div>
         <button 
           onClick={handleOpenNew}
           className="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <span className="material-symbols-outlined">add</span> Weka Bidhaa Sokoni
+          <span className="material-symbols-outlined">add</span> {t('farmer.market.add')}
         </button>
       </header>
 
