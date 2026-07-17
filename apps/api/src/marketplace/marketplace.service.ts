@@ -106,10 +106,19 @@ export class MarketplaceService {
     return listing;
   }
 
-  async update(id: string, farmerId: string, updateListingDto: UpdateListingDto): Promise<Listing> {
+  async update(id: string, farmerId: string, updateListingDto: UpdateListingDto, file?: any): Promise<Listing> {
     const listing = await this.findOne(id);
     if (listing.farmerId !== farmerId) {
       throw new UnauthorizedException('You can only update your own listings');
+    }
+    
+    if (file) {
+      try {
+        const uploadResult = await this.cloudinaryService.uploadImage(file);
+        listing.photoUrl = uploadResult.secure_url;
+      } catch (e) {
+        console.error('[Marketplace] Image upload failed during update:', e.message);
+      }
     }
     
     Object.assign(listing, updateListingDto);

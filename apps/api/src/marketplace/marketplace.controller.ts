@@ -50,8 +50,14 @@ export class MarketplaceController {
 
   @Put('listings/:id')
   @Roles(Role.FARMER)
-  updateListing(@Request() req, @Param('id') id: string, @Body() updateListingDto: UpdateListingDto) {
-    return this.marketplaceService.update(id, req.user.id, updateListingDto);
+  @UseInterceptors(FileInterceptor('photo'))
+  updateListing(
+    @Request() req, 
+    @Param('id') id: string, 
+    @Body() updateListingDto: UpdateListingDto,
+    @UploadedFile() file?: any
+  ) {
+    return this.marketplaceService.update(id, req.user.id, updateListingDto, file);
   }
 
   @Delete('listings/:id')

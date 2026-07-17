@@ -35,7 +35,7 @@ async function bootstrap() {
     phone: '+255700000001',
     passwordHash,
     role: Role.FARMER,
-    name: 'Joseph Mkulima',
+    name: 'Michael Mkulima',
   });
 
   const buyer = await userRepository.save({
@@ -43,7 +43,7 @@ async function bootstrap() {
     phone: '+255700000002',
     passwordHash,
     role: Role.BUYER,
-    name: 'Bakhresa Group',
+    name: 'Sarah Mnunuzi',
   });
 
   const officer = await userRepository.save({
@@ -51,7 +51,7 @@ async function bootstrap() {
     phone: '+255700000003',
     passwordHash,
     role: Role.OFFICER,
-    name: 'Officer Juma',
+    name: 'Daudi Afisa',
   });
 
   const admin = await userRepository.save({
@@ -59,7 +59,7 @@ async function bootstrap() {
     phone: '+255700000004',
     passwordHash,
     role: Role.ADMIN,
-    name: 'Admin System',
+    name: 'Fatuma Admin',
   });
 
   // 3. Seed Crops (FAO mock data)

@@ -30,6 +30,18 @@ export class CreateListingDto {
 
 export class UpdateListingDto {
   @IsOptional()
+  @IsString()
+  cropId?: string;
+
+  @IsOptional()
+  @IsString()
+  unit?: string;
+
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @IsOptional()
   @IsEnum(ListingStatus)
   status?: ListingStatus;
 
