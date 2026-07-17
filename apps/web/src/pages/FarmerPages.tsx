@@ -9,7 +9,7 @@ import { useFarmerDeals, useRespondDeal } from '../features/deals/useDeals';
 import { LocationPickerMap } from '../components/ui/LocationPickerMap';
 import { useTranslation } from '../lib/i18n';
 
-const FarmWeatherWidget = ({ farmId }: { farmId: string }) => {
+export const FarmWeatherWidget = ({ farmId }: { farmId: string }) => {
   const { data: weather, isLoading } = useFarmWeather(farmId);
 
   if (isLoading) return <div className="text-xs text-on-surface-variant animate-pulse p-2">Inapakia Hali ya Hewa...</div>;
@@ -642,6 +642,11 @@ export const FarmerMarket = () => {
   const [editingListingId, setEditingListingId] = useState<string | null>(null);
   const [deletingListingId, setDeletingListingId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const ITEMS_PER_PAGE = 4;
+  
   const [formData, setFormData] = useState({
     cropId: '',
     quantity: '',
@@ -675,16 +680,20 @@ export const FarmerMarket = () => {
     if (!formData.cropId || !formData.quantity || !formData.pricePerUnit) return;
     
     if (editingListingId) {
-      // For updates, we just send JSON (no image update yet for listings in our backend setup)
+      const submissionData = new FormData();
+      submissionData.append('cropId', formData.cropId);
+      submissionData.append('quantity', formData.quantity);
+      submissionData.append('unit', formData.unit);
+      submissionData.append('pricePerUnit', formData.pricePerUnit);
+      submissionData.append('currency', formData.currency);
+      
+      if (selectedFile) {
+        submissionData.append('photo', selectedFile);
+      }
+
       await updateListingMutation.mutateAsync({
         id: editingListingId,
-        data: {
-          cropId: formData.cropId,
-          quantity: Number(formData.quantity),
-          unit: formData.unit,
-          pricePerUnit: Number(formData.pricePerUnit),
-          currency: formData.currency,
-        }
+        data: submissionData as any
       });
     } else {
       const submissionData = new FormData();
@@ -706,6 +715,33 @@ export const FarmerMarket = () => {
     setFormData({ cropId: '', quantity: '', unit: 'Kilo', pricePerUnit: '', currency: 'TZS' });
     setSelectedFile(null);
   };
+
+  const processedListings = React.useMemo(() => {
+    if (!listings) return [];
+    
+    let result = [...listings];
+    
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(item => 
+        item.crop?.name?.toLowerCase().includes(q) || 
+        item.status?.toLowerCase().includes(q) ||
+        item.unit?.toLowerCase().includes(q)
+      );
+    }
+    
+    result.sort((a, b) => {
+      if (sortBy === 'price_asc') return Number(a.pricePerUnit) - Number(b.pricePerUnit);
+      if (sortBy === 'price_desc') return Number(b.pricePerUnit) - Number(a.pricePerUnit);
+      if (sortBy === 'name_asc') return (a.crop?.name || '').localeCompare(b.crop?.name || '');
+      return 0; // newest defaults to API order
+    });
+    
+    return result;
+  }, [listings, searchQuery, sortBy]);
+
+  const totalPages = Math.ceil(processedListings.length / ITEMS_PER_PAGE) || 0;
+  const paginatedListings = processedListings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div className="flex-1 animate-in fade-in duration-500 relative">
@@ -810,26 +846,24 @@ export const FarmerMarket = () => {
                 </div>
               </div>
 
-              {!editingListingId && (
-                <div>
-                  <label className="block text-label-md font-bold text-on-surface mb-2">Picha ya Bidhaa (Hiari)</label>
-                  <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
-                    <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
-                    <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha ya bidhaa yako</span>
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    {selectedFile && (
-                      <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
-                        {selectedFile.name}
-                      </span>
-                    )}
-                  </div>
+              <div>
+                <label className="block text-label-md font-bold text-on-surface mb-2">Picha ya Bidhaa (Hiari)</label>
+                <div className="w-full p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center gap-2 hover:bg-surface-container transition-colors relative cursor-pointer">
+                  <span className="material-symbols-outlined text-4xl text-primary/50">add_photo_alternate</span>
+                  <span className="text-label-sm text-on-surface-variant">Bofya hapa kuweka picha ya bidhaa yako</span>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {selectedFile && (
+                    <span className="text-primary font-bold text-sm mt-2 bg-primary-container px-3 py-1 rounded-full">
+                      {selectedFile.name}
+                    </span>
+                  )}
                 </div>
-              )}
+              </div>
               
               <div className="flex gap-4 mt-8 pt-4 border-t border-outline-variant">
                 <button type="button" onClick={() => { setIsModalOpen(false); setEditingListingId(null); }} className="flex-1 py-3 text-on-surface border border-outline-variant rounded-xl hover:bg-surface-container font-bold transition-colors">
@@ -850,54 +884,100 @@ export const FarmerMarket = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg mt-8">
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="font-title-md text-title-md text-on-surface mb-4">Bidhaa Zilizopo Sokoni</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+            <h2 className="font-title-md text-title-md text-on-surface shrink-0">Bidhaa Zilizopo Sokoni</h2>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+                <input 
+                  type="text" 
+                  placeholder="Tafuta zao au kipimo..." 
+                  value={searchQuery}
+                  onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+                />
+              </div>
+              <select 
+                value={sortBy}
+                onChange={e => { setSortBy(e.target.value); setCurrentPage(1); }}
+                className="py-2 px-3 text-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary outline-none cursor-pointer transition-all"
+              >
+                <option value="newest">Mpya Zaidi</option>
+                <option value="price_asc">Bei: Chini kwenda Juu</option>
+                <option value="price_desc">Bei: Juu kwenda Chini</option>
+                <option value="name_asc">Jina: A hadi Z</option>
+              </select>
+            </div>
+          </div>
           
           {isLoading ? (
             <div className="p-8 text-center text-on-surface-variant">Inapakia...</div>
-          ) : listings?.length === 0 ? (
-            <div className="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">Hauna bidhaa yoyote sokoni.</div>
+          ) : processedListings?.length === 0 ? (
+            <div className="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-xl">Hakuna bidhaa zilizopatikana kwa utafutaji huo.</div>
           ) : (
-            listings?.map((listing) => (
-              <div key={listing.id} className="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col sm:flex-row gap-6 items-center">
-                <div className="w-full sm:w-32 h-24 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
-                  <img className="w-full h-full object-cover" src={listing.photoUrl || "https://images.unsplash.com/photo-1599579085609-8b835bc4578b?auto=format&fit=crop&q=80&w=200"} alt={listing.crop?.name} />
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-headline-sm text-headline-sm text-primary">{listing.crop?.name} ({listing.quantity} {listing.unit})</h3>
-                      <p className="font-label-sm text-on-surface-variant">Hali: {listing.status}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-title-md text-on-surface">{listing.currency} {Number(listing.pricePerUnit).toLocaleString()}</div>
-                      <div className="font-label-sm text-on-surface-variant">kwa {listing.unit}</div>
-                    </div>
+            <>
+              {paginatedListings?.map((listing) => (
+                <div key={listing.id} className="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col sm:flex-row gap-6 items-center">
+                  <div className="w-full sm:w-32 h-24 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+                    <img className="w-full h-full object-cover" src={listing.photoUrl || "https://images.unsplash.com/photo-1599579085609-8b835bc4578b?auto=format&fit=crop&q=80&w=200"} alt={listing.crop?.name} />
                   </div>
-                  <div className="flex justify-between items-center mt-4 pt-3 border-t border-outline-variant/50">
-                    <div className="flex gap-4">
-                      <span className="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-xs font-bold">Ofa Mpya</span>
-                      <button className="text-primary font-label-sm hover:underline">Tazama Ofa</button>
-                    </div>
-                    {listing.status === 'ACTIVE' && (
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleEditClick(listing)}
-                          className="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors flex items-center gap-1"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">edit</span> Hariri
-                        </button>
-                        <button 
-                          onClick={() => setDeletingListingId(listing.id)}
-                          className="px-3 py-1.5 text-xs font-bold text-error bg-error/10 rounded hover:bg-error/20 transition-colors flex items-center gap-1"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">delete</span> Futa
-                        </button>
+                  <div className="flex-1 w-full">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="font-headline-sm text-headline-sm text-primary">{listing.crop?.name} ({listing.quantity} {listing.unit})</h3>
+                        <p className="font-label-sm text-on-surface-variant">Hali: {listing.status}</p>
                       </div>
-                    )}
+                      <div className="text-right">
+                        <div className="font-title-md text-on-surface">{listing.currency} {Number(listing.pricePerUnit).toLocaleString()}</div>
+                        <div className="font-label-sm text-on-surface-variant">kwa {listing.unit}</div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-outline-variant/50">
+                      <div className="flex gap-4">
+                        <span className="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-xs font-bold">Ofa Mpya</span>
+                        <button className="text-primary font-label-sm hover:underline">Tazama Ofa</button>
+                      </div>
+                      {listing.status === 'ACTIVE' && (
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleEditClick(listing)}
+                            className="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">edit</span> Hariri
+                          </button>
+                          <button 
+                            onClick={() => setDeletingListingId(listing.id)}
+                            className="px-3 py-1.5 text-xs font-bold text-error bg-error/10 rounded hover:bg-error/20 transition-colors flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">delete</span> Futa
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+              
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 mt-6">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-outline-variant hover:bg-surface-container disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+                  <span className="text-label-md text-on-surface-variant font-medium">Ukurasa {currentPage} wa {totalPages}</span>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-outline-variant hover:bg-surface-container disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

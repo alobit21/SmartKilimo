@@ -129,7 +129,7 @@ export const RoleShell: React.FC = () => {
               </button>
             </div>
             <div>
-              <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name || user?.email}!</h2>
+              <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name ? user.name.split(' ')[0] : user?.email?.split('@')[0]}!</h2>
               <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime}</p>
             </div>
             <div className="flex items-center gap-4">

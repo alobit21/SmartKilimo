@@ -11,36 +11,46 @@ import { useFarms, useFarmWeather } from '../features/farms/useFarms';
 import { useMyAdvisoryRequests } from '../features/advisory/useAdvisory';
 import { useMyListings } from '../features/marketplace/useMarketplace';
 
+import { FarmWeatherWidget } from './FarmerPages';
+
 const DashboardFarmItem = ({ farm }: { farm: any }) => {
-  const { data: weather } = useFarmWeather(farm.id);
-  
   return (
-    <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
-      <div className="flex items-center gap-6">
-        <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
-          <span className="material-symbols-outlined">agriculture</span>
-        </div>
-        <div>
-          <p className="font-label-lg text-label-lg text-on-surface">{farm.name}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="font-body-md text-body-md text-on-surface-variant">Hekta {farm.sizeHectares}</p>
-            {weather && (
-              <span className="flex items-center gap-1 text-xs bg-surface-container-high px-2 py-0.5 rounded-full text-on-surface border border-outline-variant/50">
-                <span className="material-symbols-outlined text-[14px] text-orange-500">thermostat</span>
-                {Math.round(weather.temperature)}°C
-              </span>
-            )}
+    <div className="bg-surface-container rounded-xl p-4 flex flex-col gap-4 border border-outline-variant/50 soft-lift hover:border-primary transition-all">
+      <div className="flex justify-between items-start">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container">
+            <span className="material-symbols-outlined">grass</span>
+          </div>
+          <div>
+            <p className="font-title-sm text-title-sm text-on-surface">{farm.name}</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">Eka {farm.sizeHectares}</p>
           </div>
         </div>
+        <span className={`px-3 py-1 rounded-full font-label-sm text-label-sm ${
+          farm.status === 'Tayari Kuvunwa' ? 'bg-primary text-on-primary' : 
+          farm.status === 'Inahitaji Maji' || farm.status === 'Imeshambuliwa na Wadudu' ? 'bg-error-container text-error' : 
+          'bg-secondary-container text-on-secondary-container'
+        }`}>
+          {farm.status || 'Kitalu Kipya'}
+        </span>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
-          <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
-          <p className="font-label-lg text-label-lg text-secondary">{farm.status || 'Kitalu Kipya'}</p>
+      
+      <div>
+        <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-1">
+          <span>Maendeleo ya Ukuaji</span>
+          <span>{farm.growthProgress || 0}%</span>
         </div>
-        <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+        <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+          <div className="h-full bg-primary" style={{ width: `${farm.growthProgress || 0}%` }}></div>
+        </div>
       </div>
-    </Link>
+
+      <FarmWeatherWidget farmId={farm.id} />
+      
+      <Link to="/farmer/crops" className="w-full py-2 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-outline-variant mt-2">
+        <span className="material-symbols-outlined text-[18px]">calendar_month</span> Tazama Ratiba & Sasisha
+      </Link>
+    </div>
   );
 };
 

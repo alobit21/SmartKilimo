@@ -87,8 +87,11 @@ export const useUpdateListing = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateListingData> }) => {
-      const response = await apiClient.put(`/marketplace/listings/${id}`, data);
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const isFormData = data instanceof FormData;
+      const response = await apiClient.put(`/marketplace/listings/${id}`, data, {
+        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+      });
       return response.data;
     },
     onSuccess: () => {
