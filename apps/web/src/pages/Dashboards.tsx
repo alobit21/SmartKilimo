@@ -7,9 +7,42 @@ import { WeatherWidget } from '../components/farmer/WeatherWidget';
 import { MarketPricesWidget } from '../components/farmer/MarketPricesWidget';
 import { CropRecommendationsWidget } from '../components/farmer/CropRecommendationsWidget';
 import { useTranslation } from '../lib/i18n';
-import { useFarms } from '../features/farms/useFarms';
+import { useFarms, useFarmWeather } from '../features/farms/useFarms';
 import { useMyAdvisoryRequests } from '../features/advisory/useAdvisory';
 import { useMyListings } from '../features/marketplace/useMarketplace';
+
+const DashboardFarmItem = ({ farm }: { farm: any }) => {
+  const { data: weather } = useFarmWeather(farm.id);
+  
+  return (
+    <Link to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
+      <div className="flex items-center gap-6">
+        <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
+          <span className="material-symbols-outlined">agriculture</span>
+        </div>
+        <div>
+          <p className="font-label-lg text-label-lg text-on-surface">{farm.name}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="font-body-md text-body-md text-on-surface-variant">Hekta {farm.sizeHectares}</p>
+            {weather && (
+              <span className="flex items-center gap-1 text-xs bg-surface-container-high px-2 py-0.5 rounded-full text-on-surface border border-outline-variant/50">
+                <span className="material-symbols-outlined text-[14px] text-orange-500">thermostat</span>
+                {Math.round(weather.temperature)}°C
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="text-right hidden sm:block">
+          <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
+          <p className="font-label-lg text-label-lg text-secondary">{farm.status || 'Kitalu Kipya'}</p>
+        </div>
+        <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+      </div>
+    </Link>
+  );
+};
 
 export const FarmerDashboard = () => {
   const { t } = useTranslation();
@@ -19,11 +52,8 @@ export const FarmerDashboard = () => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-      {/* Weather Snapshot Card (Spans 4 columns) */}
-      <WeatherWidget />
-
-      {/* Crop Recommendation Card (Spans 8 columns) */}
-      <div className="md:col-span-8 bg-sprout-tint rounded-xl p-6 soft-lift flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
+      {/* Crop Recommendation Card (Spans 12 columns) */}
+      <div className="md:col-span-12 bg-sprout-tint rounded-xl p-6 soft-lift flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 opacity-10">
           <span className="material-symbols-outlined text-[160px]">eco</span>
         </div>
@@ -64,24 +94,7 @@ export const FarmerDashboard = () => {
             <div className="text-center py-4 text-on-surface-variant">Hauna kitalu chochote kilichosajiliwa.</div>
           ) : (
             farms?.slice(0, 3).map((farm) => (
-              <Link key={farm.id} to="/farmer/crops" className="flex items-center justify-between p-4 bg-surface-container rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer group">
-                <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-white">
-                    <span className="material-symbols-outlined">agriculture</span>
-                  </div>
-                  <div>
-                    <p className="font-label-lg text-label-lg text-on-surface">{farm.name}</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant">Hekta {farm.sizeHectares}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right hidden sm:block">
-                    <p className="font-label-sm text-label-sm text-on-surface-variant">Hatua ya zao</p>
-                    <p className="font-label-lg text-label-lg text-secondary">{farm.status || 'Kitalu Kipya'}</p>
-                  </div>
-                  <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
-                </div>
-              </Link>
+              <DashboardFarmItem key={farm.id} farm={farm} />
             ))
           )}
         </div>

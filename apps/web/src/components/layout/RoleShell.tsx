@@ -28,11 +28,8 @@ export const RoleShell: React.FC = () => {
     <div className="bg-background text-on-background min-h-screen flex">
       {/* SideNavBar */}
       <aside className="hidden md:flex h-full w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex-col py-6 px-4 z-50">
-        <div className="mb-8 px-4">
-          <h1 className="font-headline-sm text-headline-sm text-primary mb-1">Mkulima Bora</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant opacity-70">Morogoro, Tanzania</p>
-        </div>
         
+
         <nav className="flex-1 space-y-2">
           {/* Active: Dashboard */}
           <Link to={`/${role.toLowerCase()}`} className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all scale-95 active:scale-90 ${location.pathname.includes('dashboard') || location.pathname === `/${role.toLowerCase()}` ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
@@ -119,17 +116,6 @@ export const RoleShell: React.FC = () => {
           )}
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-outline-variant">
-          <button className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-lg text-label-lg mb-6 hover:opacity-90 transition-opacity">
-            Tuma Ripoti
-          </button>
-          <div className="space-y-1">
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-error-container hover:text-error rounded-xl transition-all text-label-lg">
-              <span className="material-symbols-outlined">logout</span>
-              <span>{t('nav.logout')}</span>
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content Canvas */}
@@ -143,24 +129,42 @@ export const RoleShell: React.FC = () => {
               </button>
             </div>
             <div>
-              <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name?.split(' ')[0] || 'Joseph'}!</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime} • Morogoro</p>
+              <h2 className="font-display-md text-display-md font-bold text-primary">Hujambo, {user?.name || user?.email}!</h2>
+              <p className="font-body-md text-body-md text-on-surface-variant">Leo ni tarehe {currentTime}</p>
             </div>
             <div className="flex items-center gap-4">
               <button onClick={toggleLanguage} className="bg-surface-container hover:bg-surface-container-high transition-colors px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium">
                 <span className="material-symbols-outlined text-[18px]">translate</span>
-                {language === 'sw' ? 'EN' : 'SW'}
+                {language.toUpperCase()}
               </button>
               <button className="relative p-2 rounded-full hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined">notifications</span>
                 <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
               </button>
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-                <img 
-                  className="w-full h-full object-cover" 
-                  alt="A professional headshot of a Tanzanian farmer in his 40s" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ4uK5dn96xIHQSdES5uidKF24roVqspfKD0t7zvQSekxUkEjjtDTju7PRFuB9HUsoKD-AXRTfy7qFdMu8jaNrZ9vfe0XQqkTWAAcfWyGIxRzhJvZF8WnyQDQStQxxc88lvwbDFHCQegItwwH5epqdoYlRyb7oC6jyO9_p1McB21xgM_pBsfYXLWDc43PvGnxNes1GaI67LyhRU6eXp4C48I-YfYvHspHeuPYia3cDnvg4g9N8KNPg"
-                />
+              <div className="relative group">
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant cursor-pointer">
+                  <img 
+                    className="w-full h-full object-cover" 
+                    alt="Profile" 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ4uK5dn96xIHQSdES5uidKF24roVqspfKD0t7zvQSekxUkEjjtDTju7PRFuB9HUsoKD-AXRTfy7qFdMu8jaNrZ9vfe0XQqkTWAAcfWyGIxRzhJvZF8WnyQDQStQxxc88lvwbDFHCQegItwwH5epqdoYlRyb7oC6jyO9_p1McB21xgM_pBsfYXLWDc43PvGnxNes1GaI67LyhRU6eXp4C48I-YfYvHspHeuPYia3cDnvg4g9N8KNPg"
+                  />
+                </div>
+                <div className="absolute right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-outline-variant opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                  <div className="p-3 border-b border-outline-variant">
+                    <p className="font-label-md text-on-surface truncate">{user?.name || user?.email}</p>
+                    <p className="font-body-sm text-on-surface-variant truncate">{user?.email}</p>
+                  </div>
+                  <div className="p-1">
+                    <button className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container rounded-lg flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+                      {t('nav.password')}
+                    </button>
+                    <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container rounded-lg flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px]">logout</span>
+                      {t('nav.logout')}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </header>

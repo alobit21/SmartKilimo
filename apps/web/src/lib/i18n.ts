@@ -17,6 +17,7 @@ const enTranslations: Record<string, string> = {
   'nav.advisory': 'Expert Advisory',
   'nav.settings': 'Settings',
   'nav.logout': 'Logout',
+  'nav.password': 'Change Password',
   
   // Dashboard - Farmer
   'farmer.weather.title': 'Weather Forecast',
@@ -219,6 +220,7 @@ const swTranslations: Record<string, string> = {
   'nav.advisory': 'Ushauri',
   'nav.settings': 'Mipangilio',
   'nav.logout': 'Ondoka',
+  'nav.password': 'Badilisha Nenosiri',
   
   // Dashboard - Farmer
   'farmer.weather.title': 'Hali ya Hewa',
